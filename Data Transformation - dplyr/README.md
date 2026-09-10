@@ -108,6 +108,8 @@ setequal(tabel1, tabel2)                    # cek isi baris identik
 
 ## Exercise
 
+> **Latihan 100 kasus soal + jawaban: [`EXERCISE.md`](EXERCISE.md)** — memakai dataset latihan khusus (`qc_hasil_produksi.csv`, `qc_operator.csv`, `qc_produk.csv`; generator: `buat_data_latihan.R`).
+
 Kerjakan dengan `quality_inspection.csv`:
 
 1. **Filter**: ambil semua baris produk `Bracket` pada lini `A` dengan `Defect` di atas 4.

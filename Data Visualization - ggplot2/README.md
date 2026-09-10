@@ -9,6 +9,29 @@ library(ggplot2)
 inspeksi <- read.csv("quality_inspection.csv")
 ```
 
+## Contoh Chart Lengkap (73 contoh siap jalan)
+
+Script [`contoh_visualisasi_ggplot2.R`](contoh_visualisasi_ggplot2.R) mendemokan hampir seluruh geom & komponen ggplot2 memakai `quality_inspection.csv`. Setiap grafik otomatis tersimpan sebagai PNG di [`output/`](output/), jadi bisa dipakai sebagai galeri referensi visual.
+
+Jalankan dari root project (atau buka dan run per-bagian di RStudio):
+
+```r
+source("Data Visualization - ggplot2/contoh_visualisasi_ggplot2.R")
+```
+
+| Bagian | Isi | Contoh chart |
+|---|---|---|
+| 1 | Distribusi 1 variabel | histogram, density, freqpoly, dotplot, bar, lollipop, ECDF, Q-Q, box, violin |
+| 2 | Diskret vs kontinu | boxplot/violin grup, col, grouped/stacked/100% bar, errorbar, pointrange, crossbar, linerange, stat_summary, jitter, heatmap |
+| 3 | Kontinu vs kontinu | scatter, smooth lm/loess, bubble, multi-aes, geom_count, rug, text, bin2d, density 2D, hex\*, quantile\* |
+| 4 | Waktu / tren | line, linetype, area, ribbon, step, path, garis referensi + annotate, segment + panah |
+| 5 | Koordinat khusus | pie, donut, coxcomb (rose), radar, coord_cartesian / fixed / trans |
+| 6–7 | Facet & scales | facet_wrap, facet_grid, free scales + labeller, manual/brewer/viridis/gradient2, kontrol breaks-limits-expand |
+| 8–10 | Gaya & mesin plot | galeri tema, tema kustom, guides (legenda & colorbar), stat_count, after_stat |
+| 11 | Produksi | labs lengkap, dashboard 2×2, ggsave multi-format |
+
+\* butuh package opsional (`hexbin`, `quantreg`, `svglite`) — contoh terkait dilewati otomatis bila package belum terpasang.
+
 ## Template Dasar
 
 ```r
