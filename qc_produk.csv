@@ -1,0 +1,7 @@
+"Produk","Kategori","HargaSatuan","TargetDefectRate"
+"Bracket","Mekanik",15000,0.03
+"Housing","Mekanik",22000,0.035
+"Terminal","Elektrik",9000,0.05
+"Panel","Elektronik",48000,0.04
+"Sensor","Elektronik",125000,0.02
+"Kabel","Elektrik",12000,0.045

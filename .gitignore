@@ -1,23 +1,11 @@
 # macOS
 .DS_Store
 
-# R / RStudio
+# State IDE lokal RStudio — bukan hasil kerja, tidak perlu versi
 .Rhistory
 .RData
-.Rproj.user/
-*.Rproj
 .Ruserdata
+.Rproj.user/
 
-# Output analisis (artefak yang bisa dihasilkan ulang)
-output/
-*.csv
-!quality_inspection.csv
-
-# Grafik hasil ggsave
-*.png
-*.jpg
-*.jpeg
-
-# File sementara
-*.tmp
-*.log
+# Catatan: dataset latihan (qc_*.csv), galeri chart (output/*.png, *.pdf),
+# dan seluruh hasil generate DIKOMMIT sesuai keputusan repo.
