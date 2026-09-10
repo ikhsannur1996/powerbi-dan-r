@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# R / RStudio
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+.Ruserdata
+
+# Output analisis (artefak yang bisa dihasilkan ulang)
+output/
+*.csv
+!quality_inspection.csv
+
+# Grafik hasil ggsave
+*.png
+*.jpg
+*.jpeg
+
+# File sementara
+*.tmp
+*.log
