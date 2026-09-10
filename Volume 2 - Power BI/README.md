@@ -527,32 +527,97 @@ geom_hline(yintercept = 0.05, linetype = "dashed", color = "red")
 
 ---
 
-## 18. Referensi Berkas
+## 18. Tips & Trik Volume 2
+
+### 18.1 R di Power Query
+
+1. Uji R dulu di RStudio sebelum menaruh di Power Query.
+2. Nama output bersih konsisten: `CleanData`.
+3. Power Query input selalu bernama `dataset` — tidak mengubah itu.
+4. Jika R error di Power Query, jalan skrip dulu di RScript/console.
+5. Pastikan instalasi R dipakai Power BI sama dengan yang di RStudio.
+
+### 18.2 R Visual
+
+6. Kolom yang dipakai R visual **harus masuk Values**.
+7. R visual dirender sebagai gambar — tidak "hover" di dalam.
+8. Semua filter/slicer yang memengaruhi data akan ri-render R visual.
+9. Gunakan `library(ggplot2)` dan `library(scales)` di kode visual.
+10. Agregasi lakukan di Power Query atau R sebelum plot — bukan biarkan mentah.
+
+### 18.3 DAX & Format
+
+11. `DIVIDE()` lebih aman daripada `/`.
+12. Nama measure ≠ nama kolom (`DefectRate` vs `Overall Defect Rate`).
+13. Format persen 1 desimal; ribuan separator untuk count/unit.
+14. Conditional formatting tabel untuk ambang 5%.
+15. Bereken measure dalam satu tempat (Display Folder) agar konsisten.
+
+### 18.4 Desain & Insight
+
+16. Dashboard minimal: 4 KPI + 1 native + 1 R visual + slicer + insight.
+17. Judul berupa pertanyaan, bukan label.
+18. Prioritasi berdasarkan defect rate, bukan hanya total defect.
+19. Uji sensitiviti: jika hanya bulan terbaru, kesimpulan berubah?
+20. Simpan `.pbix` di folder `dashboard/` setelah jadi.
+
+---
+
+## 19. Bank Latihan Volume 2 (Exercise Bank)
+
+### 19.1 Cleaning & Model
+
+1. Import `quality_inspection.csv` melalui **Get Data > Text/CSV** + **Transform Data**.
+2. Jalankan R script di Power Query; verifikasi output `CleanData` muncul di navigator.
+3. Pastikan kolom `InspectionDate` bertipe Date; DefectRate bertipe Decimal.
+4. Buat tabel measure (DAX) untuk 4 KPI.
+
+### 19.2 Visual Native
+
+5. Buat 4 KPI card dari measure.
+6. Buat column chart defect rate per lini + format persen + judul pertanyaan.
+7. Buat slicer untuk `Month`, `Line`, `DefectType`.
+8. Buat tabel ringkasan lini + conditional formatting defect rate.
+
+### 19.3 R Visual
+
+9. Tambah R visual, masukan kolom `InspectionDate`, `Line`, `DefectRate`, `Inspected` di Values.
+10. Paste kode template (Bab 11 README); verifikasi tren render.
+11. Uji slicer Line — titik/garis harus berubah.
+12. Tambah garis target 5% (`geom_hline`).
+
+### 19.4 Insight & Final
+
+13. Tulis insight Kondisi-Bukti-Tindakan berdasarkan hasil Anda.
+14. Uji sensitiviti bulan terbaru (filter Month = terbaru) dan catat perubahan insight.
+15. Simpan laporan sebagai `.pbix` di folder proyek.
+
+---
+
+## 20. Kata Kunci Jawaban (Hint Singkat)
+
+- KPI: `SUM(CleanData[Inspected])`, `SUM(CleanData[Defect])`, `DIVIDE(...)`, `1 - [Defect Rate]`.
+- R Power Query: output `CleanData` + tipe Date/numeric.
+- R Visual Values: 4 kolom wajib.
+- Judul pertanyaan: "Lini mana paling perlu investigasi?"
+- Conditional: `> 0.05` red, `<= 0.05` green.
+- Insight template: kondisi → bukti → tindakan.
+
+---
+
+## 21. Referensi Volume 2
 
 | Berkas | Lokasi |
 | --- | --- |
+| **Cheatsheet Volume 2 (sintaks Power BI + R)** | `CHEATSHEET.md` (di folder ini) |
 | Materi lengkap Volume 2 (untuk pengajar) | `../Materi_Training_Power_BI_dengan_R.md` |
 | Hands-on peserta Volume 2 | `../Hands-on_Power_BI_dengan_R.md` |
 | README induk | `../README.md` |
-| Materi Basic R (Volume 1 fondasi) | `../README_Basic_R.md` dan `../Volume 1 - R Studio/README.md` |
+| Volume 0 & 1 (fondasi R) | `../Volume 0 - Basic R/README.md`, `../Volume 1 - R Studio/README.md` |
 | Dataset | `../quality_inspection.csv` |
 | Skrip R Power Query | `../quality_inspection_cleaning.R` |
 | TOR sumber | `../Term of Reference (TOR) Training Hardskill Vol. 2 (Pak Ikhsan).docx.pdf` |
-| Power BI Desktop | <https://powerbi.microsoft.com/desktop/> |
-| ggplot2 dokumentasi | <https://ggplot2.tidyverse.org/> |
 
 ---
 
-## 19. Kriteria Keberhasilan Sesi
-
-Peserta mencapai target apabila dapat:
-
-1. Menghasilkan `CleanData` **tanpa baris inspeksi yang tidak valid**;
-2. Menampilkan **4 KPI** dengan nilai yang konsisten;
-3. Menyediakan **minimal 1 visual native** dan **1 R visual**;
-4. Menunjukkan bahwa visual R **berubah saat slicer** digunakan;
-5. Menjelaskan minimal **1 insight**, dengan bukti pendukung dan tindakan lanjutan.
-
----
-
-*README Volume 2 — disusun berdasarkan materi `Materi_Training_Power_BI_dengan_R.md`, `Hands-on_Power_BI_dengan_R.md`, dan README induk rangkaian "Insight to Impact".*
+*README Volume 2 — alur end-to-end: data → model → visual → insight dengan integrasi R.*

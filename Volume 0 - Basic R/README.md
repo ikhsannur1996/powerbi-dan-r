@@ -1011,13 +1011,153 @@ ggsave("defect_rate_by_line.png", width = 8, height = 5, dpi = 300)
 
 ---
 
-## 15. Referensi dan Berkas
+---
+
+## 15. Tips & Trik Volume 0
+
+### 15.1 Kebiasaan kerja yang membuat belajar R cepat
+
+1. **Mulai kecil**: jalankan satu baris → baca hasil → lanjut. Jangan jalankan seluruh skrip sebelum memahami tiap blok.
+2. **Gunakan project RStudio**: `File > New Project` di folder materi. Semua path menjadi relatif dan aman.
+3. **Beri nama objek seperti cerita**: `defect_rate_by_line` lebih baik daripada `dr`.
+4. **Tulis komentar dulu, kode kemudian**: tulis apa yang ingin dilakukan, lalu isi dengan kode.
+5. **Cek data sebelum analisis**: `head()`, `str()`, `summary()`, `nrow()` adalah ritual wajib.
+6. **Ulangi skrip dari atas** bila ragu; environment bisa "basi" karena objek lama tertinggal.
+7. **Rapi dan konsisten**: satu operasi per baris pipa, nama kolom penggaris bawah `_`.
+
+### 15.2 Pola sintaks yang paling sering dipakai
+
+```r
+# Pola 1: baca -> bersihkan -> metrik
+df <- read.csv("quality_inspection.csv", stringsAsFactors = FALSE)
+
+clean <- df |>
+  mutate(
+    InspectionDate = as.Date(InspectionDate),
+    DefectRate = Defect / Inspected
+  ) |>
+  filter(Inspected > 0, Defect >= 0, Defect <= Inspected)
+
+# Pola 2: ringkas per kelompok
+ringkasan <- clean |>
+  group_by(Line) |>
+  summarise(
+    n = n(),
+    total_defect = sum(Defect),
+    defect_rate = total_defect / sum(Inspected),
+    .groups = "drop"
+  )
+
+# Pola 3: visualkan hasil
+ggplot(ringkasan, aes(x = Line, y = defect_rate)) +
+  geom_col() +
+  scale_y_continuous(labels = percent_format())
+```
+
+### 15.3 "Cheat mental" menghafal fungsi
+
+| Jika ingin... | Ingat... |
+| --- | --- |
+| Pilih kolom | `select()` |
+| Pilih baris | `filter()` |
+| Buat kolom | `mutate()` |
+| Urutkan | `arrange(desc())` |
+| Ringkas per grup | `group_by()` → `summarise()` |
+| Gabung data | `left_join()` |
+| Plot bar/garis/titik | `geom_col()` / `geom_line()` / `geom_point()` |
+| Persentase di sumbu | `percent_format()` (dari `scales`) |
+| Simpan grafik | `ggsave()` |
+
+> Trik ingatan: **S–F–M–A–G** = `select` → `filter` → `mutate` → `arrange` → `group/summarise`.
+
+### 15.4 Tips teknis RStudio
+
+- `Cmd/Ctrl + Shift + M` untuk mengetik pipe (`%>%` atau `|>`).
+- `Alt + -` (Option + minus) untuk `<-`.
+- `Cmd/Ctrl + Shift + C` untuk komentar cepat pada blok.
+- `Tab` setelah `df$` → autocomplete nama kolom.
+- Klik nama data frame di **Environment** = `View()`.
+- `str(df)` lebih cepat daripada `View()` untuk memahami struktur besar.
+
+---
+
+## 16. Bank Latihan Tambahan (Exercise Bank) — Volume 0
+
+Gunakan `quality_inspection.csv`. Coba kerjakan tanpa melihat kunci lebih dulu.
+
+### 16.1 Soal Essai / Latihan Terbuka
+
+**A. Basic R**
+1. Buat objek `total_inspected <- 5000` dan `total_defect <- 320`. Hitung `defect_rate`.
+2. Buat vektor `cycle <- c(38, 42, 45, 41, 39)` lalu hitung `mean`, `sd`, `min`, `max`.
+3. Tampilkan elemen ke-2 sampai ke-4 dari vektor `line <- c("A","B","C","D","E")`.
+4. Gunakan `ifelse()` untuk membuat label `"Above"` jika `DefectRate > 0.05`, selain itu `"OK"`.
+
+**B. Data Manipulation**
+5. Baca `quality_inspection.csv`; tampilkan 10 baris dengan `Defect > 5` dan `Line == "A"`.
+6. Buat kolom `FirstPassYield = 1 - Defect/Inspected`.
+7. Hitung defect rate per `Line`, urutkan menurun.
+8. Hitung jumlah baris dan total defect per `DefectType` (gunakan `count()`/`summarise()`).
+9. Gabungkan ringkasan per lini dengan tabel harga produk (opsional/imaginer) menggunakan `left_join()`.
+
+**C. Visualisasi**
+10. Buat bar chart defect rate per lini, warna `steelblue`, judul berbentuk pertanyaan.
+11. Buat line chart defect rate dari waktu ke waktu (`InspectionDate`).
+12. Buat scatter plot `CycleTimeSec` vs `DefectRate` + `geom_smooth(method="lm")`.
+13. Buat boxplot `CycleTimeSec` per `Line`.
+14. Tambahkan `facet_wrap(~ Line)` pada line chart, lalu simpan PNG dengan `ggsave()`.
+
+### 16.2 Kunci jawaban singkat
+
+```r
+# 1
+total_inspected <- 5000; total_defect <- 320
+defect_rate <- total_defect / total_inspected
+
+# 2
+a <- c(38, 42, 45, 41, 39)
+mean(a); sd(a); min(a); max(a)
+
+# 3
+line <- c("A","B","C","D","E"); line[2:4]
+
+# 4
+ifelse(defect_rate > 0.05, "Above", "OK")   # ambang sesuai kebutuhan
+
+# 5
+quality |> filter(Line == "A", Defect > 5) |> head(10)
+
+# 6
+quality |> mutate(FirstPassYield = 1 - Defect / Inspected)
+
+# 7
+quality |>
+  mutate(DefectRate = Defect / Inspected) |>
+  group_by(Line) |>
+  summarise(DefectRate = sum(Defect) / sum(Inspected), .groups = "drop") |>
+  arrange(desc(DefectRate))
+
+# 8
+quality |> count(DefectType, sort = TRUE)
+
+# 9  (contoh, harga_inspeksi = data tambahan dengan kolom Line & Biaya)
+ringkasan |> left_join(harga_produk, by = "Line")
+
+# 10-14 (lihat Bab 8; pakai ringkasan/topik dari README)
+```
+
+> Catatan: nomor 4 gunakan `case_when()` bila perlu multi-kondisi. Untuk soal 7, defect rate agregat sebaiknya `sum(Defect)/sum(Inspected)`.
+
+---
+
+## 17. Referensi dan Berkas
 
 | Berkas/Materi | Lokasi |
 | --- | --- |
+| **Cheatsheet Volume 0 (sintaks cepat)** | `CHEATSHEET.md` (di folder ini) |
 | Modul Basic R lanjutan (statistik) | `../README_Basic_R.md` |
-| Volume 1 — R Studio | `../Volume 1 - R Studio/README.md` |
-| Volume 2 — Power BI | `../Volume 2 - Power BI/README.md` |
+| Volume 1 — R Studio | `../Volume 1 - R Studio/README.md` dan `CHEATSHEET.md` |
+| Volume 2 — Power BI | `../Volume 2 - Power BI/README.md` dan `CHEATSHEET.md` |
 | Dataset | `../quality_inspection.csv` |
 | Skrip cleaning Power Query | `../quality_inspection_cleaning.R` |
 | Dokumentasi R | <https://cran.r-project.org/> |

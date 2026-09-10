@@ -861,28 +861,143 @@ write.csv(line_result, "output/quality_summary_by_line.csv", row.names = FALSE)
 
 ---
 
-## 20. Catatan Interpretasi dan Keterbatasan
+## 20. Tips & Trik Volume 1
 
-- Dataset `quality_inspection.csv` adalah **dataset latihan** dengan jumlah observasi terbatas.
-- Hasil uji statistik digunakan untuk **belajar alur analisis**, bukan sebagai keputusan produksi final.
-- Dalam kondisi nyata, pertimbangkan: periode data yang lebih panjang, desain sampling, independensi observasi, ukuran sampel, faktor proses lain, dan validasi bersama ahli domain.
-- Korelasi ≠ kausalitas; p-value besar ≠ "H0 benar"; R-squared tinggi ≠ model benar.
-- Hasil analisis dari folder ini menjadi **input Volume 2 (Power BI)** untuk membangun dashboard yang menyampaikan insight dengan cara yang merespons filter.
+### 20.1 Statistik — pola paling sering
+
+1. **Mulai dari pertanyaan**, bukan dari uji. Tabel Bab 12 membantu pilihan.
+2. **Cek asumsi** sebelum uji: independensi observasi, distribusi residual, varianti sebanding.
+3. **P-value kecil ≠ efek besar** — periksa juga ukuran selisih rata-rata dan CI.
+4. **CI yang memuat 0** pada uji t → perbedaan belum signifikan.
+5. Bila ANOVA signifikan, **Tukey HSD** memberi pasangan yang berbeda.
+6. **Regresi**: baca koefisien, p-value, R-squared, pling residual.
+7. **Prediksi**: `interval = "confidence"` untuk rata-rata, `"prediction"` untuk individuel.
+8. **Korelasi =/= sebab-akibat**; gunaka bahasa "berhubungan".
+9. **P-value besar ≠ H0 benar** — hanya "belum cukup bukti".
+10. **Visual** (boxplot + smooth) harus gabung dengan uji — bukan sah.
+
+### 20.2 Visualisasi — pola ggplot2 cepat
+
+```r
+# Plot + target + persentase
+ggplot(summary_by_line, aes(x = Line, y = DefectRate)) +
+  geom_col(fill = "steelblue") +
+  geom_hline(yintercept = 0.05, linetype = "dashed", color = "red") +
+  scale_y_continuous(labels = percent_format(accuracy = 0.1)) +
+  labs(title = "Lini mana paling perlu investigasi?", y = "Defect rate (%)") +
+  theme_minimal()
+
+# Multi-variabel: warna + ukuran + loess
+ggplot(plot_data, aes(InspectionDate, DefectRate, color = Line)) +
+  geom_point(aes(size = Inspected), alpha = 0.75) +
+  geom_smooth(method = "loess", se = FALSE) +
+  scale_y_continuous(labels = percent_format()) +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "bottom")
+```
+
+### 20.3 Trik menghafal output model
+
+| Output `summary(lm())` | Mah malum |
+| --- | --- |
+| `Pr(>|t|)` | p-value koefisien (uji t per prediktor) |
+| `R-squared` | proporsi variansi dijelaskan |
+| `Residual standard error` | kesalahan rata-rata model |
+| `F-statistic` (ANOVA) | varians antar ÷ varians dalam |
 
 ---
 
-## 21. Referensi dan Materi Berkas
+## 21. Bank Latihan Volume 1 (Exercise Bank)
+
+### 21.1 Statistik
+
+1. Hitung statistik deskriptif per lini (`group_by(Line)` + `summarise`): n, mean, sd cycle time.
+2. Hitung defect rate agregat per lini dan per jenis defect.
+3. Uji t: apakah rata-rata cycle time lini A berbeda dari lini B? Tulis interpretasi.
+4. ANOVA: apakah cycle time berbeda min um 3 lini? Periksa asumsi.
+5. Regresi: cycle time membantu menjelaskan defect rate? Baca p-value & R².
+
+### 21.2 Visualisasi
+
+6. Bar chart defect rate per lini + garis target 5%.
+7. Line chart tren defect rate per tanggal, per warna lini.
+8. Scatter `CycleTimeSec` vs `DefectRate` + `geom_smooth("lm")`.
+9. Boxplot cycle time per lini.
+10. Facet `facet_wrap(~ Line)` line chart; simpan PNG.
+
+### 21.3 Extra (lanjutan)
+
+11. Prediksi defect rate untuk cycle time = c(40, 50, 60).
+12. Cek residual model regresi (`plot(model)`).
+13. Tulis 1 insight (kondisi-bukti-tindakan) dengan p-value dari hasil Anda.
+
+---
+
+## 22. Kunci Jawaban / Solusi
+
+```r
+# 1
+quality_clean |>
+  group_by(Line) |>
+  summarise(
+    n = n(),
+    mean_ct = mean(CycleTimeSec, na.rm = TRUE),
+    sd_ct = sd(CycleTimeSec, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# 2
+quality_clean |>
+  group_by(Line) |>
+  summarise(DefectRate = sum(Defect) / sum(Inspected), .groups = "drop") |>
+  arrange(desc(DefectRate))
+
+# 3
+line_ab <- quality_clean |> filter(Line %in% c("A", "B"))
+t.test(CycleTimeSec ~ Line, data = line_ab)
+
+# 4
+anova_model <- aov(CycleTimeSec ~ Line, data = quality_clean)
+summary(anova_model)
+TukeyHSD(anova_model)
+plot(anova_model)
+
+# 5
+model <- lm(DefectRate ~ CycleTimeSec, data = quality_clean)
+summary(model)
+
+# 6
+ggplot(summary_by_line, aes(x = Line, y = DefectRate)) +
+  geom_col(fill = "steelblue") +
+  geom_hline(yintercept = 0.05, linetype = "dashed", color = "red") +
+  scale_y_continuous(labels = percent_format(accuracy = 0.1)) +
+  theme_minimal()
+
+# 7-10: pakai template Bab 13-15 README + `facet_wrap(~ Line)`.
+
+# 11
+new <- data.frame(CycleTimeSec = c(40, 50, 60))
+predict(model, newdata = new, interval = "confidence")
+
+# 12
+par(mfrow = c(2, 2)); plot(anova_model); par(mfrow = c(1, 1))
+```
+
+---
+
+## 23. Referensi Volume 1
 
 | Berkas | Lokasi |
 | --- | --- |
+| **Cheatsheet Volume 1 (sintaks statistik + ggplot)** | `CHEATSHEET.md` (di folder ini) |
 | Materi induk Basic R | `../README_Basic_R.md` |
-| Materi Power BI + R (Volume 2) | `../Materi_Training_Power_BI_dengan_R.md` dan `../Volume 2 - Power BI/README.md` |
+| Volume 0 — Basic R | `../Volume 0 - Basic R/README.md` dan `CHEATSHEET.md` |
+| Volume 2 — Power BI | `../Volume 2 - Power BI/README.md` dan `CHEATSHEET.md` |
 | Dataset | `../quality_inspection.csv` |
 | Skrip cleaning Power Query | `../quality_inspection_cleaning.R` |
-| Dokumentasi R | <https://cran.r-project.org/> |
-| RStudio (Posit) | <https://posit.co/download/rstudio-desktop/> |
-| ggplot2 dokumentasi | <https://ggplot2.tidyverse.org/> |
+| Statistik R docs | <https://stat.ethz.ch/R-manual/R-devel/library/stats/html/00_index.html> |
+| ggplot2 | <https://ggplot2.tidyverse.org/> |
 
 ---
 
-*README Volume 1 — disusun berdasarkan materi Basic R dan materi hands-on rangkaian "Insight to Impact".*
+*README Volume 1 — Statistik inferensial + visualisasi untuk analisis yang reproducible dan insightful.*
