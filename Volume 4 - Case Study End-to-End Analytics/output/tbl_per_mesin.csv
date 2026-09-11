@@ -1,0 +1,5 @@
+"Line","Mesin","Produksi","Cacat","DefectRatePct","DowntimeMnt"
+"Line-A","M-02",75476,2512,3.33,6238
+"Line-B","M-04",80351,2258,2.81,5838
+"Line-A","M-01",80977,1911,2.36,3892
+"Line-B","M-03",76868,1361,1.77,4200
