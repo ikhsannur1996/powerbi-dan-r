@@ -27,7 +27,11 @@ buat <- function(ops, dilatih) {
 df <- rbind(buat(ops_treat, "Ya"), buat(ops_ctrl, "Tidak"))
 df$Periode <- factor(df$Periode, levels = c("Sebelum", "Sesudah"))
 
-base_dir <- "/Users/ikhsannur1996/Documents/Power BI dan R/Volume 5 - Causal Inference Sederhana/data"
+# Path relatif terhadap root repo "Power BI dan R" agar portabel
+ROOT <- "Volume 5 - Causal Inference Sederhana"
+base_dir <- file.path(ROOT, "data")
+if (!dir.exists(base_dir)) dir.create(base_dir, recursive = TRUE)
 write.csv(df, file.path(base_dir, "causal_simple.csv"), row.names = FALSE)
 cat("baris:", nrow(df), " kolom:", ncol(df), "\n")
 print(aggregate(DefectRate ~ Dilatih + Periode, df, mean))
+

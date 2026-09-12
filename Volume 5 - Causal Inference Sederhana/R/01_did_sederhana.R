@@ -6,22 +6,27 @@
 # ============================================================
 suppressPackageStartupMessages({ library(dplyr); library(ggplot2) })
 ROOT <- "Volume 5 - Causal Inference Sederhana"
+OUT  <- file.path(ROOT, "output")
+if (!dir.exists(OUT)) dir.create(OUT, recursive = TRUE)
 
 df <- read.csv(file.path(ROOT, "data/causal_simple.csv"), stringsAsFactors = FALSE) %>%
   mutate(Periode = factor(Periode, levels = c("Sebelum", "Sesudah")))
 
 # ---- 1. Rata-rata 4 sel (cara manual, tanpa regresi) ----
+# NOTE: rata-rata disimpan PRESISI PENUH; pembulatan hanya untuk tampilan.
+# (Membulatkan dulu baru menghitung DiD menimbulkan selisih 0,001.)
 sel <- df %>%
   group_by(Dilatih, Periode) %>%
-  summarise(Rata = round(mean(DefectRate), 3), .groups = "drop")
-print(sel)
+  summarise(Rata = mean(DefectRate), .groups = "drop")
+sel_tampil <- sel %>% mutate(Rata = round(Rata, 3))
+print(sel_tampil)
 
 # ---- 2. Estimasi DiD manual ----
 perubahan_latih  <- sel$Rata[sel$Dilatih == "Ya" & sel$Periode == "Sesudah"] -
                     sel$Rata[sel$Dilatih == "Ya" & sel$Periode == "Sebelum"]
 perubahan_kontrol <- sel$Rata[sel$Dilatih == "Tidak" & sel$Periode == "Sesudah"] -
                     sel$Rata[sel$Dilatih == "Tidak" & sel$Periode == "Sebelum"]
-did <- round(perubahan_latih - perubahan_kontrol, 3)
+did <- perubahan_latih - perubahan_kontrol
 cat(sprintf("Perubahan grup latih   : %.3f\n", perubahan_latih))
 cat(sprintf("Perubahan grup kontrol : %.3f\n", perubahan_kontrol))
 cat(sprintf("Efek kausal (DiD)      : %.3f poin defect\n", did))
@@ -33,6 +38,9 @@ m <- lm(DefectRate ~ Treat + Sesudah + Treat:Sesudah, data = df)
 cat("--- ringkasan regresi ---\n"); print(summary(m))
 
 # ---- 4. Satu grafik: garis tren dua grup ----
+# Urutan arrange() = Tidak-Sebelum, Tidak-Sesudah, Ya-Sebelum, Ya-Sesudah.
+# Nudge negatif = label di bawah titik, positif = di atas titik
+# (dipilih agar label di luar garis: bawah-atas-atas-bawah).
 rata <- df %>% group_by(Dilatih, Periode) %>% summarise(Rata = mean(DefectRate), .groups = "drop") %>%
   arrange(Dilatih, Periode) %>%
   mutate(Lab = sprintf("%.2f", Rata),
@@ -46,5 +54,5 @@ p <- ggplot(rata, aes(Periode, Rata, group = Dilatih, colour = Dilatih)) +
                           perubahan_latih, perubahan_kontrol, did),
        x = NULL, y = "Rata-rata defect rate (%)", colour = "Ikut pelatihan?") +
   theme_minimal(base_size = 13) + theme(plot.title = element_text(face = "bold"))
-ggsave(file.path(ROOT, "output/did_tren.png"), p, width = 8, height = 5, dpi = 150)
-cat("tersimpan: output/did_tren.png\n")
+ggsave(file.path(OUT, "did_tren.png"), p, width = 8, height = 5, dpi = 150)
+cat("tersimpan:", file.path(OUT, "did_tren.png"), "\n")
