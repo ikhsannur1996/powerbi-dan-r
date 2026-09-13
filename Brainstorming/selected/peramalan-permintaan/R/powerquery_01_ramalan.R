@@ -2,26 +2,26 @@
 # BLOK R DI POWER QUERY #1  ->  tabel "ramalan"  (versi sederhana)
 # ------------------------------------------------------------
 # TEMPEL kode ini pada:  Home > Transform Data (Power Query) >
-# sono "ramalan_sumber" > Transform > Run R script > OK
+# buka "ramalan_sumber" > Transform > Run R script > OK
+#
+# BUSINESS CASE: "CV Segar Jaya" (Teh Botol & Keripik Kentang)
 #
 # INPUT  (variabel `dataset`, dibuat otomatis Power BI) =
 #   hasil gabungan "permintaan" (kiri) + "produk" (kanan) by Produk
 #   kolom: Tanggal, Produk, Permintaan, Kategori, HargaSatuan,
 #          KapasitasMesin, LeadTimeHari
 #
-# OUTPUT (variabel `output`, nama WAHIB per Power BI) =
+# OUTPUT (variabel `output`, nama WAJIB per Power BI) =
 #   tabel "ramalan": riwayat (2024-2025) + PLAN 2026 (Jan-Jun)
 #   x 3 skenario what-if (Pesimis / Normal / Optimis)
 #
-# METODE PLAN (sederhana, tanpa statistika):
-#   1) AngkaBulan : bulan Desember biasanya 1,4x rata-rata produk;
-#                   bulan Januari biasanya 0,7x rata-rata.
-#                   (rata-rata bulan kalender : rata-rata produk)
+# METODE PLAN (3 langkah, sangat sederhana):
+#   1) AngkaBulan : "Desember biasanya 1,4x rata-rata; Januari 0,7x"
+#                   = rata-rata bulan kalender : rata-rata produk
 #   2) Level      : rata-rata 3 bulan TERAKHIR (Okt-Des 2025)
 #   3) PLAN bulan = Level x AngkaBulan
-#   4) CekPlan    : PLAN yang dibuat 6 bulan lalu (Jul-Des 2025)
-#                   memakai level 3 bulan sebelum x AngkaBulan(2024)
-#                   -> untuk visual "Cek: Plan vs Aktual"
+#   CekPlan      : PLAN utk Jul-Des 2025 (rata 3 bln sblmnya x AngkaBulan)
+#                  -> untuk visual "Cek: Plan vs Aktual"
 # ============================================================
 
 # >>> BLOK_PQ_01_START
@@ -53,8 +53,7 @@ X <- X |>
                     lag(Permintaan, 3)) / 3) |>
   ungroup()
 
-# ---------- 3. Angka Bulan (indeks musiman), 2 versi ----------
-# versi lengkap (2024+2025) -> untuk PLAN 2026
+# ---------- 3. Angka Bulan (berapa x rata-rata produk) ----------
 angka_full <- X |>
   group_by(Produk, BulanKe) |>
   summarise(rb = mean(Permintaan), .groups = "drop") |>
@@ -63,26 +62,13 @@ angka_full <- X |>
   ungroup() |>
   select(Produk, BulanKe, AngkaBulan)
 
-# versi 2024 saja -> untuk CEK PLAN (bonkest 2025) tanpa "monyeji"
-angka_2024 <- X |>
-  filter(Tahun == 2024) |>
-  group_by(Produk, BulanKe) |>
-  summarise(rb = mean(Permintaan), .groups = "drop") |>
-  group_by(Produk) |>
-  mutate(Angka = rb / mean(rb)) |>
-  ungroup() |>
-  select(Produk, BulanKe, Angka)
-
-# AngkaBulan untuk SEMUA baris (riwayat + plan)
 X <- X |>
   left_join(angka_full, by = c("Produk", "BulanKe"))
 
-# ---------- 4. CekPlan: plan yang dibuat 6 bulan luar -------------
+# ---------- 4. CekPlan: plan yang dibuat 6 bulan lalu -------------
 X <- X |>
-  left_join(angka_2024, by = c("Produk", "BulanKe")) |>
   mutate(CekPlan = ifelse(Tahun == 2025 & BulanKe >= 7,
-                          Rata3 * Angka, NA_real_)) |>
-  select(-Angka)
+                          Rata3 * AngkaBulan, NA_real_))
 
 # ---------- 5. Level terbaru (rata-rata Okt-Des 2025) ----------
 level_akhir <- X |>
@@ -93,7 +79,7 @@ level_akhir <- X |>
 # ---------- 6. PLAN maju: 2026 Jan-Jun per produk ----------
 plan_grid <- expand.grid(
   Tanggal = seq(as.Date("2026-01-01"), as.Date("2026-06-01"), by = "month"),
-  Produk  = c("Produk A", "Produk B"),
+  Produk  = c("Teh Botol", "Keripik Kentang"),
   stringsAsFactors = FALSE
 ) |>
   mutate(

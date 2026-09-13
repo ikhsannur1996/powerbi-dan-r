@@ -1,166 +1,165 @@
-# 📊 Peramalan Permintaan — Proyek End-to-End (Power BI + R)
+# CV Segar Jaya — Peramalan Permintaan (End-to-End, Power BI + R)
 
-> **Satu README lengkap** untuk proyek *Peramalan Permintaan — Versi Super Sederhana*:
-> dokumentasi, **semua kode R** (inline), **semua output visual** (tentanam), dan **panduan
-> dashboard Power BI** langkah-demi-langkah.
+> **Satu README lengkap** untuk business case *"CV Segar Jaya"*: cerita bisnis, **metode
+> kalkulasi super sederhana (3 langkah)**, **semua kode R**, 1 bagian per visual
+> (**kode + hasil gambar**), **panduan Dashboard Power BI**, dan **glossary**.
 >
-> Bahasa sehari-hari — **tidak perlu tau statistika** — hanya aritmetika dasar:
-> *rata-rata, kali, dan membagi*.
+> **Sasaran:** pemilik / manajemen produksi — **statistika tidak perlu**, hanya
+> *rata-rata, kali, dan dibagi*.
 >
-> **Pertanyaan inti:** *Berapa permintaan bulan depan? Bilang kapan mesin tidak cukup?*
+> **Pertanyaan inti:** *Berapa unit produksi bulan depan? Kapan 1 mesin tidak cukup?*
+
 
 ---
 
-## 1. Gambaran Umum
+## 1. Business Case: "CV Segar Jaya" (cerita nyata)
 
-| Komponen | Keterangan |
+CV Segar Jaya adalah perusahaan kecil dengan **2 lini produksi (1 mesin per produk)**:
+
+| Produk | Apa produk ini | Harga | Kapasitas 1 mesin (unit/bulan) | Tren (dari data 2025 vs 2024) |
+| --- | --- | ---: | ---: | --- |
+| **Teh Botol** | Minuman (botol es teh) | **Rp 12.000** | 7.000 unit | **+7,1%** |
+| **Keripik Kentang** | Makanan ringan (snack) | **Rp 15.000** | 3.800 unit | **+5,2%** |
+
+**Data:** penjualan setiap bulan, 24 bulan (Jan 2024 - Des 2025) = 48 baris.
+
+**Ibu Ana (pemilik) tanya setiap bulan 3 pertanyaan:**
+
+1. *Berapa unit produksi **bulan depan**, per produk?*
+2. *Bulan berapa **1 mesin tidak cukup**?*
+3. *Apa bila promosi **+10%**? Apa bila pasar **-10%**?*
+
+**Kenapa ini studi kasus nyata:** Desember biasanya penjualan **±1,4x** rata-rata; Januari **±0,7x**.
+Bila plan setiap bulan pakai rata-rata biasa, di Desember stok tidak cukup dan mesin penuh.
+Solusi proyek ini: *"rata-rata 3 bulan terakhir x Angka Bulan"* — perhitungan sederhana yang
+setiap pemilik bisa menghitung ulang.
+
+
+---
+
+## 2. Data (hasil aktual)
+
+| Metrik | Teh Botol | Keripik Kentang |
+| --- | ---: | ---: |
+| Total 2024 | 69.373 | 38.844 |
+| Total 2025 | 74.284 (**+7,1%**) | 40.869 (**+5,2%**) |
+| **Total riwayat 2024-2025** | **223.370 unit** | - |
+
+**Angka Bulan:** Desember = **1,39x** rata-rata; Januari = **0,70x** rata-rata (kedua produk).
+
+---
+
+## 3. Kalkulasi — super sederhana, 3 langkah
+
+### Langkah 1 — Angka Bulan ("bulan ini = berapa x rata-rata?")
+
+Dari data 24 bulan (visual 5): Januari = 0,70; Desember = 1,39.
+
+| Angka Bulan | Makna |
 | --- | --- |
-| **Nama proyek** | Peramalan Permintaan — Versi Super Sederhana (sumber: `Brainstorming/pilihan/03-peramalan-permintaan`) |
-| **Metoda plan** | `rata-rata 3 bulan terakhir × angka bulan` — 1 metoda, tanpa istilah statistika |
-| **Transformasi** | 100% R di **Power Query** (`dplyr`/`tidyr`) → tabel `ramalan` (+ cross join skenario what-if) |
-| **Visualisasi** | 8 **R visual** `ggplot2` yang merespons slicer (star model terkoneksi) |
-| **Model data** | fakt `ramalan` (180 baris) + dimensi `produk` (2) + `skenario` (3) — **semua terkoneksi** |
-| **Dataset** | 2 produk × 24 bulan (2024–2025) → plan 6 bulan (2026 Jan–Jun) |
-| **Bahasa dokumentasi** | Indonesia (bahasa sehari-hari) |
+| 1,00 | penjualan tepat rata-rata |
+| 0,70 | penjualan **30% di bawah** rata-rata (bulan sepi) |
+| 1,39 | penjualan **39% di atas** rata-rata (bulan puncak) |
 
-**Semua angka di file ini = hasil aktual dari `output/` (bukan perkiraan).**
+### Langkah 2 — Level (rata-rata 3 bulan terakhir)
 
-### Prasyarat (R)
+Teh Botol, 3 bulan terakhir (Okt-Des 2025): **6.909 + 7.341 + 8.378**
+= rata-rata **(6.909 + 7.341 + 8.378) : 3 ≈ 7.543**.
 
-```r
-install.packages(c("dplyr", "tidyr", "ggplot2", "scales"))
+### Langkah 3 — Plan = Level x Angka Bulan
+
+| Produk | Level (Okt-Des 2025) | x Angka Bulan Jan | = Plan Jan 2026 |
+| --- | ---: | ---: | ---: |
+| **Teh Botol** | 7.543 | 0,70 | **≈ 5.275 unit** |
+| **Keripik Kentang** | 4.050 | 0,70 | **≈ 2.822 unit** |
+
+> Sangat sederhana. Perhitungan yang sama ada di kode R (bab 8).
+> Angka 5.275 dan 2.822 = Plan bulan depan (Normal, tanpa skenario).
+
+### Cek metode (uji kepercayaan): dijalankan 6 bulan lalu
+
+Perhitungan yang sama, tetapi 6 bulan lebih awal (Jul-Des 2025), dibandingkan dengan aktual:
+
+| Produk | Rata-rata selisih (plan vs aktual) |
+| --- | ---: |
+| Teh Botol | **5,6%** |
+| Keripik Kentang | **6,8%** |
+
+> Penjelasan: "bila metode ini dipakai 6 bulan lalu, plan rata-rata selisih **6-7%** dari aktual"
+> — cukup akurat untuk rencana produksi.
+
+---
+
+## 4. Hasil & What-if (jawaban untuk Ibu Ana)
+
+| Skenario | Plan 2026 (unit) | Nilai penjualan 2026 (Rp) | Mesin puncak: Teh Botol | Mesin puncak: Keripik |
+| --- | ---: | ---: | ---: | ---: |
+| **Pesimis** (x0,90) | 54.507 | Rp 712,2 M | 1 | 1 |
+| **Normal** (x1,00) | 60.564 | Rp 791,4 M | **2** | **2** |
+| **Optimis** (x1,10) | 66.620 | Rp 870,5 M | **2** | **2** |
+
+Angka penting:
+
+- **Teh Botol**: puncak plan (Jun 2026) = **7.641** > kapasitas 7.000 → **1 mesin tidak cukup**
+  (hanya pada Pesimis muat: 6.877 < 7.000).
+- **Keripik Kentang**: puncak plan = **4.168** > 3.800 → **2 mesin**; pada Pesimis 3.751 < 3.800 → 1 mesin.
+- **Plan bulan depan Jan 2026** (Normal): Teh Botol 5.275 · Keripik 2.822 unit.
+
+
+
+---
+
+## 5. Cara Menjalankan (lokal, tanpa Power BI)
+
+```bash
+cd "Brainstorming/selected/peramalan-permintaan"
+Rscript R/00_buat_data.R     # 1x: buat data (set.seed)
+Rscript R/03_validasi.R      # jalan blok Power Query + 8 R visual -> output/
 ```
 
-Power BI Desktop: **File > Options > Global > R scripting** → check instalasi R
-(labeled: "Detected R home directories"). Semua sumber data → **Privacy = Public**.
+Hasil: `output/ramalan.csv` (180 baris = riwayat+plan x 3 skenario) + `output/V1...V8.png`.
 
-> Power BI tidak meng-`library()` otomatis → setiap blok R di bawah ber `library()` sendiri.
+> Validasi: **0 warning**, test filter 40 kombinasi -> **ALL OK**.
+> Kode yang ditempel di Power BI **persis sama** dengan yang dijalankan `R/03_validasi.R`.
 
 ---
 
-## 2. Struktur Folder
+## 6. Struktur Folder
 
 ```text
 Brainstorming/selected/peramalan-permintaan/
-├── README.md                     # file ini (dokumentasi + kode + gambar + panduan)
+├── README.md                     # file ini (end-to-end, bahasa sederhana)
 ├── data/
 │   ├── permintaan.csv            # fakta: 48 baris (2 produk x 24 bulan)
-│   └── produk.csv                # dimensi produk (nama, harga, kapasitas)
+│   └── produk.csv                # dimensi produk
 ├── R/
 │   ├── 00_buat_data.R            # generator data (set.seed 20260913)
 │   ├── powerquery_01_ramalan.R   # BLOK R -> Power Query -> tabel "ramalan"
 │   ├── visual_R_powerbi.R        # 8 BLOK R visual (ggplot2)
 │   └── 03_validasi.R             # jalan semua blok lokal -> output/
-└── output/                       # ramalan.csv + V1..V8 PNG (pratinjau)
+└── output/                       # ramalan.csv + V1..V8.png (pratinjau)
 ```
-
-> **Single source of truth:** kode yang ditempel di Power BI **persis sama** dengan file `R/*`.
-> `R/03_validasi.R` diekstrak kode itu dari marka `# >>> BLOK_*_START/END` lalu dijalan —
-> jadi bila jalan di mac = jalan di Power BI. Kode dalam README file ini = **salinan persis file tersebut**.
-
----
-
-## 3. Cara Menjalankan (validacja lokal, tanpa Power BI)
-
-```bash
-cd "Brainstorming/selected/peramalan-permintaan"
-Rscript R/00_buat_data.R     # 1x: generate data (set.seed)
-Rscript R/03_validasi.R      # jalan blok Power Query + 8 R visual -> output/
-```
-
-Luaran:
-
-| File | Keterangan |
-| --- | --- |
-| `output/ramalan.csv` | 180 baris = (48 riwayat + 12 plan) × 3 skenario |
-| `output/V1_kpi.png` … `V8_whatif.png` | pratinjau 8 R visual (lihat bab 10) |
-
-Validacja aktual: **exit 0, 0 warning**, test filter 40 kombinasi → **ALL OK**.
-
-
-
----
-
-## 4. Data: 2 Produk, 24 Bulan
-
-| Produk | Kategori | HargaSatuan | Kapasitas 1 mesin (unit/bulan) | Tren (ditanam) |
-| --- | --- | ---: | ---: | --- |
-| **Produk A** | Minuman | Rp 12.000 | 7.000 | +1,0%/bulan (tumbuh) |
-| **Produk B** | Makanan | Rp 15.000 | 3.800 | +0,4%/bulan (quasi stabil) |
-
-Angka aktual:
-
-| Metrik | Produk A | Produk B |
-| --- | ---: | ---: |
-| Total 2024 | 67.540 | 39.883 |
-| Total 2025 | 76.290 (**+13,0%**) | 39.801 (**±0**) |
-| Total riwayat 2024–25 | **223.514 unit** | — |
-
-**Angka Bulan** (berapa × rata-rata produk): Desember contoh **1,4×** rata-rata;
-Januari **0,7×** rata-rata (visual V5 & heatmap V6 mengecek pattern ini).
-
----
-
-## 5. Metoda Plan — Sederhana (1 cara saja)
-
-```text
-PLAN bulan ke depan  =  rata-rata 3 bulan terakhir  ×  angka bulan
-```
-
-| Langkah | Perjelasan | Angka contoh (Produk A) |
-| --- | --- | --- |
-| 1. **Rata-rata 3 bulan terakhir** | rata-rata permintaan Okt–Des 2025 | ≈ 7.024 (level) |
-| 2. **Angka bulan** | bulan Januari biasanya 0,7× rata-rata | 0,67 |
-| 3. **PLAN Jan 2026** | `7.024 × 0,67` | **≈ 5.231 unit** |
-
-### Cek metode ini (`CekPlan`)
-
-Cara yang sama, tetapi 6 bulan lalu — kita cek *seberapa hampir plan vs aktual* di Jul–Des 2025:
-
-| Produk | Rata-rata selisih (plan vs aktual) |
-| --- | ---: |
-| Produk A | **10,7%** |
-| Produk B | **8,0%** |
-
-Cara baca: "bila plan cara ini 6 bulan lalu, rata-rata selisih 8–11% — cukup baik untuk plan produksi."
-
----
-
-## 6. Hasil & What-if (Skenario)
-
-Slicer `Skenario` mengubah **faktor plan** (×0,90 / ×1,00 / ×1,10):
-
-| Skenario | Faktor | Plan 2026 (unit) | Penjualan 2026 (Rp) | Mesin puncak A | Mesin puncak B |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| **Pesimis** | ×0,90 | 55.058 | Rp 716,9 M | 2 | **1** |
-| **Normal** | ×1,00 | 61.176 | Rp 796,5 M | **2** | **2** |
-| **Optimis** | ×1,10 | 67.293 | Rp 876,2 M | **2** | **2** |
-
-Cek cepat:
-
-- Plan puncak **Produk A** (Normal) = **7.924** > kapasitas 7.000 → **butuh 2 mesin** (di semua skenario).
-- Plan puncak **Produk B** (Normal) = **4.016** > 3.800 → **2 mesin**; di Pesimis 3.615 < 3.800 → **cukup 1**.
-- **Plan bulan depan** Jan 2026 (Normal): Produk A **5.231** · Produk B **2.856**.
-
 
 ---
 
 ## 7. Kode: Generator Data (`R/00_buat_data.R`)
 
-Jalan 1x: `Rscript R/00_buat_data.R` → `data/permintaan.csv` + `data/produk.csv` (reproducible, set.seed).
-
 ```r
 # ============================================================
-# Peramalan Permintaan - Versi Compact (proyek "selected")
+# Peramalan Permintaan — Versi Super Sederhana (proyek "selected")
 # R/00_buat_data.R  --  generator data ringkas
 #
-# Case sederhana: 2 produk x 24 bulan (2024-2025) = 48 baris.
-# Pola yang ditanam (set.seed):
-#   * TREN naik per produk (Produk A +1,0%/bulan; Produk B +0,4%/bulan)
-#   * MUSIMAN puncak Nov-Des (indeks 1,28 & 1,38) vs dasar Jan-Feb (0,82)
-#   * noise normal ~ 7%
+# BUSINESS CASE (fikti): "CV Segar Jaya"
+#   Pabrik kecil pembuat minuman & makanan ringan. 2 produk:
+#     * Teh Botol       (minuman)        -> Tren +1,0%/bulan
+#     * Keripik Kentang (makanan ringan) -> Tren +0,4%/bulan
+#   Data penjualan aktual 24 bulan (2024-2025), set.seed reproducible.
+#   Pola yang ditanam:
+#     * TREN naik per produk
+#     * MUSIMAN puncak Nov-Des (Angka Bulan tinggi: 1,28 & 1,38)
+#     * noise kecil (~7%)
 #
-# Output: data/permintaan.csv  (fakta: Tanggal, Produk, Permintaan)
+# Output: data/permintaan.csv  (Tanggal, Produk, Permintaan)
 #         data/produk.csv      (dimensi: Kategori, Harga, Kapasitas, LeadTime)
 # ============================================================
 
@@ -172,12 +171,12 @@ base <- if (length(sp)) dirname(dirname(normalizePath(sp))) else getwd()
 dir.create(file.path(base, "data"), showWarnings = FALSE)
 
 bulan   <- seq(as.Date("2024-01-01"), as.Date("2025-12-01"), by = "month")
-produk  <- c("Produk A", "Produk B")
+produk  <- c("Teh Botol", "Keripik Kentang")
 
 # --- parameter dasar ---
-base_qty <- c("Produk A" = 5000, "Produk B" = 3000)      # unit/bulan dasar
-tren_p   <- c("Produk A" = 0.010, "Produk B" = 0.004)    # tren % per bulan
-# indeks musiman per bulan kalender (1 = rata-rata; puncak Nov & Des)
+base_qty <- c("Teh Botol" = 5000, "Keripik Kentang" = 3000)  # unit/bulan dasar
+tren_p   <- c("Teh Botol" = 0.010, "Keripik Kentang" = 0.004)  # tren % per bulan
+# Angka Bulan dasar per bulan kalender (1 = rata-rata; puncak Nov & Des)
 musim <- c(0.82, 0.85, 0.93, 1.00, 1.08, 1.15, 1.10, 1.02, 1.04, 1.12, 1.28, 1.38)
 
 df <- expand.grid(Tanggal = bulan, Produk = produk, stringsAsFactors = FALSE)
@@ -195,7 +194,7 @@ df$Permintaan <- pmax(df$Permintaan, 200)
 # --- dimensi produk ---
 produk_dim <- data.frame(
   Produk         = produk,
-  Kategori       = c("Minuman", "Makanan"),
+  Kategori       = c("Minuman", "Makanan Ringan"),
   HargaSatuan    = c(12000, 15000),      # Rp/unit
   KapasitasMesin = c(7000, 3800),        # unit/bulan per mesin
   LeadTimeHari   = c(7, 14),
@@ -211,7 +210,7 @@ cat("Total permintaan per tahun:\n")
 print(tapply(df$Permintaan, format(df$Tanggal, "%Y"), sum))
 cat("\nRata-rata per produk:\n")
 print(round(tapply(df$Permintaan, df$Produk, mean)))
-cat("\nPuncak musiman (indeks per bulan kalender):\n")
+cat("\nPuncak musiman (Angka Bulan per bulan kalender):\n")
 print(round(tapply(df$Permintaan, bulan_ke, mean) / mean(df$Permintaan), 2))
 print(head(df, 4))
 ```
@@ -220,21 +219,19 @@ print(head(df, 4))
 
 ## 8. Kode: Transformasi di Power BI (R di Power Query)
 
-Tempel kode ini di Power Query: **Home > Transform Data > (query `ramalan_sumber`) > Transform > Run R script**.
+Tempel blok bawah di: **Home > Transform Data > (query `ramalan_sumber`) > Transform > Run R script**.
 
-- **Input** `dataset` = gabungan `permintaan` + `produk` (Merge Queries by `Produk`).
-- **Output** `output` = tabel **`ramalan`** (180 baris: riwayat + plan 2026 × 3 skenario).
+- **Input** `dataset` = gabung `permintaan` + `produk` (merge by `Produk`).
+- **Output** `output` = tabel **`ramalan`** (180 baris, siap visual).
 
-Metoda dalam kode (komentar menjel di bahasa sehari-hari):
-
-| Langkah R | Keterangan |
+| Langkah R | Penjelasan (bahasa sehari-hari) |
 | --- | --- |
 | `Rata3` | rata-rata 3 bulan terakhir per produk |
-| `AngkaBulan` | "bulan ini biasanya …× rata-rata" (untuk PLAN 2026) |
-| `CekPlan` | plan yang dibuat 6 bulan lalu (untuk visual **Cek**) — versi AngkaBulan 2024 |
-| `Level` | rata-rata Okt–Des 2025 (level terbaru) |
-| `Plan` | `Level × AngkaBulan` untuk 2026 Jan–Jun |
-| cross join `Skenario` | Pesimis 0,90 / Normal 1,00 / Optimis 1,10 (what-if) |
+| `AngkaBulan` | "bulan ini biasanya ...x rata-rata produk" |
+| `CekPlan` | plan yang dibuat 6 bulan lalu (untuk visual Cek) |
+| `Level` | rata-rata Okt-Des 2025 (level terbaru) |
+| `Plan` | `Level x AngkaBulan` untuk Jan-Jun 2026 |
+| skenario cross join | Pesimis 0,90 / Normal 1,00 / Optimis 1,10 |
 
 ### Blok R (`R/powerquery_01_ramalan.R`)
 
@@ -243,26 +240,26 @@ Metoda dalam kode (komentar menjel di bahasa sehari-hari):
 # BLOK R DI POWER QUERY #1  ->  tabel "ramalan"  (versi sederhana)
 # ------------------------------------------------------------
 # TEMPEL kode ini pada:  Home > Transform Data (Power Query) >
-# sono "ramalan_sumber" > Transform > Run R script > OK
+# buka "ramalan_sumber" > Transform > Run R script > OK
+#
+# BUSINESS CASE: "CV Segar Jaya" (Teh Botol & Keripik Kentang)
 #
 # INPUT  (variabel `dataset`, dibuat otomatis Power BI) =
 #   hasil gabungan "permintaan" (kiri) + "produk" (kanan) by Produk
 #   kolom: Tanggal, Produk, Permintaan, Kategori, HargaSatuan,
 #          KapasitasMesin, LeadTimeHari
 #
-# OUTPUT (variabel `output`, nama WAHIB per Power BI) =
+# OUTPUT (variabel `output`, nama WAJIB per Power BI) =
 #   tabel "ramalan": riwayat (2024-2025) + PLAN 2026 (Jan-Jun)
 #   x 3 skenario what-if (Pesimis / Normal / Optimis)
 #
-# METODE PLAN (sederhana, tanpa statistika):
-#   1) AngkaBulan : bulan Desember biasanya 1,4x rata-rata produk;
-#                   bulan Januari biasanya 0,7x rata-rata.
-#                   (rata-rata bulan kalender : rata-rata produk)
+# METODE PLAN (3 langkah, sangat sederhana):
+#   1) AngkaBulan : "Desember biasanya 1,4x rata-rata; Januari 0,7x"
+#                   = rata-rata bulan kalender : rata-rata produk
 #   2) Level      : rata-rata 3 bulan TERAKHIR (Okt-Des 2025)
 #   3) PLAN bulan = Level x AngkaBulan
-#   4) CekPlan    : PLAN yang dibuat 6 bulan lalu (Jul-Des 2025)
-#                   memakai level 3 bulan sebelum x AngkaBulan(2024)
-#                   -> untuk visual "Cek: Plan vs Aktual"
+#   CekPlan      : PLAN utk Jul-Des 2025 (rata 3 bln sblmnya x AngkaBulan)
+#                  -> untuk visual "Cek: Plan vs Aktual"
 # ============================================================
 
 # >>> BLOK_PQ_01_START
@@ -294,8 +291,7 @@ X <- X |>
                     lag(Permintaan, 3)) / 3) |>
   ungroup()
 
-# ---------- 3. Angka Bulan (indeks musiman), 2 versi ----------
-# versi lengkap (2024+2025) -> untuk PLAN 2026
+# ---------- 3. Angka Bulan (berapa x rata-rata produk) ----------
 angka_full <- X |>
   group_by(Produk, BulanKe) |>
   summarise(rb = mean(Permintaan), .groups = "drop") |>
@@ -304,26 +300,13 @@ angka_full <- X |>
   ungroup() |>
   select(Produk, BulanKe, AngkaBulan)
 
-# versi 2024 saja -> untuk CEK PLAN (bonkest 2025) tanpa "monyeji"
-angka_2024 <- X |>
-  filter(Tahun == 2024) |>
-  group_by(Produk, BulanKe) |>
-  summarise(rb = mean(Permintaan), .groups = "drop") |>
-  group_by(Produk) |>
-  mutate(Angka = rb / mean(rb)) |>
-  ungroup() |>
-  select(Produk, BulanKe, Angka)
-
-# AngkaBulan untuk SEMUA baris (riwayat + plan)
 X <- X |>
   left_join(angka_full, by = c("Produk", "BulanKe"))
 
-# ---------- 4. CekPlan: plan yang dibuat 6 bulan luar -------------
+# ---------- 4. CekPlan: plan yang dibuat 6 bulan lalu -------------
 X <- X |>
-  left_join(angka_2024, by = c("Produk", "BulanKe")) |>
   mutate(CekPlan = ifelse(Tahun == 2025 & BulanKe >= 7,
-                          Rata3 * Angka, NA_real_)) |>
-  select(-Angka)
+                          Rata3 * AngkaBulan, NA_real_))
 
 # ---------- 5. Level terbaru (rata-rata Okt-Des 2025) ----------
 level_akhir <- X |>
@@ -334,7 +317,7 @@ level_akhir <- X |>
 # ---------- 6. PLAN maju: 2026 Jan-Jun per produk ----------
 plan_grid <- expand.grid(
   Tanggal = seq(as.Date("2026-01-01"), as.Date("2026-06-01"), by = "month"),
-  Produk  = c("Produk A", "Produk B"),
+  Produk  = c("Teh Botol", "Keripik Kentang"),
   stringsAsFactors = FALSE
 ) |>
   mutate(
@@ -380,51 +363,25 @@ output <- tbl |>
 # >>> BLOK_PQ_01_END
 ```
 
-> Set **Privacy = Public** pada step skrip; Power BI mengenali variabel luaran `output` → query
-> `ramalan`. Kolom `Tanggal` = **Date**; `Perintaan`/`Plan`/`CekPlan`/`AngkaBulan`/`FaktorSkenario` = **Decimal**.
+> Set **Privacy = Public** pada langkah skrip; Power BI mengenali `output` -> query `ramalan`.
+> Kolom: `Tanggal` = **Date**; `Permintaan`/`Plan`/`CekPlan`/`AngkaBulan`/`FaktorSkenario` = **Decimal**.
+
 
 ---
 
-## 9. Kode: 8 R Visual (ggplot2)
+## 9. 8 Visual — per visual: kode + hasil gambar
 
-Tempel setiap blok di satu **R visual**: klik ikon **R** (Visualization pane) → **Enable script visuals** →
-tarik field ke **Values** (numerik = **Do not summarize**) → tempel blok → **Run script**.
+Setiap bagian berikut: **apa yang ditampilkan visual**, **kolom di Values**, **kode R**
+(dari `R/visual_R_powerbi.R`), dan **hasil gambar** (dibuat oleh `03_validasi.R`;
+di Power BI visual yang sama merespons slicer).
 
-| # | R visual | Field di Values | BLOK | Keterangan |
-| --- | --- | --- | --- | --- |
-| V1 | Ringkasan (KPI) | `Produk, Jenis, Tanggal, Permintaan, Plan, CekPlan, FaktorSkenario, Skenario, HargaSatuan, KapasitasMesin` | `BLOK_RV_V1` | 4 angka: total riwayat · plan 2026 · selisih rata-rata · mesin |
-| V2 | Tren riwayat & plan | `Tanggal, Produk, Jenis, Permintaan, Plan, FaktorSkenario, Skenario` | `BLOK_RV_V2` | garis penuh = real; garis putus = plan per skenario |
-| V3 | Plan bulan depan | `Jenis, Produk, Tanggal, Plan, FaktorSkenario, Skenario` | `BLOK_RV_V3` | 1 angka: plan Jan 2026 per produk |
-| V4 | Cek: plan vs aktual | `Jenis, Tanggal, Produk, Permintaan, CekPlan` | `BLOK_RV_V4` | plan 6 bulan lalu vs aktual (Jul–Des 2025) |
-| V5 | Angka bulan | `Produk, BulanKe, AngkaBulan` | `BLOK_RV_V5` | "Desember biasanya 1,4× rata-rata" |
-| V6 | Heatmap tahun×bulan | `Jenis, Tanggal, Permintaan` | `BLOK_RV_V6` | kapan permintaan paling tinggi |
-| V7 | Kapasitas vs puncak | `Jenis, Produk, Tanggal, Skenario, FaktorSkenario, Plan, KapasitasMesin` | `BLOK_RV_V7` | bar > garis kapasitas = butuh mesin tambahan |
-| V8 | Tabel what-if | `Jenis, Tanggal, Produk, Skenario, FaktorSkenario, Plan, HargaSatuan, KapasitasMesin` | `BLOK_RV_V8` | skenario row: plan unit · Rp · mesin |
+### Visual 1 — Ringkasan (KPI)
 
-### File blok (`R/visual_R_powerbi.R`) — 8 blok dalam 1 file
+**KPI = 4 jawaban pemilik**: total penjualan 2024-2025, **Plan 2026** (unit), **rata-rata selisih** metode plan, dan **berapa mesin dibutuhkan** saat puncak plan.
+
+**Field di Values:** `Produk, Jenis, Tanggal, Permintaan, Plan, CekPlan, FaktorSkenario, Skenario, HargaSatuan, KapasitasMesin`
 
 ```r
-# ============================================================
-# VISUAL R POWER BI (ggplot2) — versi sederhana (8 blok)
-# ------------------------------------------------------------
-# Tempel setiap blok di satu **R visual** Power BI. Field barbut
-# di "Values" (rekomen: do not summarize) dijelaskan di komentar.
-#
-# METODE yang digunakan (sederhana):
-#   PLAN = rata-rata 3 bulan terakhir x "angka bulan"
-# CekPlan = plan yang dibuat 6 bulan luar (untuk visual Cek).
-#
-# Kunci filter: blok hanya membaca `dataset` (baris yang sudah
-# terfilter slicer) -> setiap gambar ikut slicer Produk / Skenario.
-# ============================================================
-
-# ------------------------------------------------------------
-# V1 - RINGKASAN (KPI)
-# Field di Values: Produk, Jenis, Tanggal, Permintaan, Plan,
-#                  CekPlan, FaktorSkenario, Skenario, HargaSatuan,
-#                  KapasitasMesin
-# ------------------------------------------------------------
-# >>> BLOK_RV_V1_START
 suppressMessages({ library(ggplot2); library(dplyr); library(scales) })
 Tgl <- dataset$Tanggal
 Tanggal <- if (is.numeric(Tgl)) as.Date(unclass(Tgl), origin = "1970-01-01") else as.Date(as.character(Tgl))
@@ -494,14 +451,21 @@ if (nrow(D) == 0) {
           plot.subtitle = element_text(hjust = 0.5, color = "grey40", size = 8.5))
 }
 p
-# >>> BLOK_RV_V1_END
+```
 
-# ------------------------------------------------------------
-# V2 - TREN: RIWAYAT vs PLAN
-# Field di Values: Tanggal, Produk, Jenis, Permintaan, Plan,
-#                  FaktorSkenario, Skenario
-# ------------------------------------------------------------
-# >>> BLOK_RV_V2_START
+**Hasil (pratinjau `output/`):**
+
+![Visual 1 — Ringkasan (KPI)](output/V1_kpi.png)
+
+---
+
+### Visual 2 — Tren: Penjualan vs Plan
+
+Grafik dalam 1 pandangan: **garis penuh** = penjualan aktual, **garis putus** = plan 2026. Warna = skenario; garis vertikal = mulai plan (Jan 2026).
+
+**Field di Values:** `Tanggal, Produk, Jenis, Permintaan, Plan, FaktorSkenario, Skenario`
+
+```r
 suppressMessages({ library(ggplot2); library(dplyr); library(scales) })
 Tgl <- dataset$Tanggal
 Tanggal <- if (is.numeric(Tgl)) as.Date(unclass(Tgl), origin = "1970-01-01") else as.Date(as.character(Tgl))
@@ -530,20 +494,27 @@ if (nrow(D) == 0) {
     scale_y_continuous(labels = label_comma()) +
     scale_x_date(date_labels = "%b %Y", date_breaks = "3 months") +
     labs(title = "Permintaan & Plan 2026",
-         subtitle = "Garis penuh = permintaan; garis putus = plan (uwekeh skenario what-if)",
+         subtitle = "Garis penuh = permintaan; garis putus = plan (warna sesuai skenario what-if)",
          x = NULL, y = "Unit") +
     theme_minimal(base_size = 12) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
 }
 p
-# >>> BLOK_RV_V2_END
+```
 
-# ------------------------------------------------------------
-# V3 - PLAN BULAN DEPAN per Produk (Jan 2026)
-# Field di Values: Jenis, Produk, Tanggal, Plan, FaktorSkenario,
-#                  Skenario
-# ------------------------------------------------------------
-# >>> BLOK_RV_V3_START
+**Hasil (pratinjau `output/`):**
+
+![Visual 2 — Tren: Penjualan vs Plan](output/V2_tren.png)
+
+---
+
+### Visual 3 — Plan Bulan Depan (Jan 2026)
+
+1 pertanyaan = 1 jawaban: **berapa unit produksi Jan 2026?** Per produk, per skenario.
+
+**Field di Values:** `Jenis, Produk, Tanggal, Plan, FaktorSkenario, Skenario`
+
+```r
 suppressMessages({ library(ggplot2); library(dplyr); library(scales) })
 Tgl <- dataset$Tanggal
 Tanggal <- if (is.numeric(Tgl)) as.Date(unclass(Tgl), origin = "1970-01-01") else as.Date(as.character(Tgl))
@@ -574,13 +545,21 @@ if (nrow(D) == 0 || nrow(D |> filter(Jenis == "Plan")) == 0) {
     theme_minimal(base_size = 12)
 }
 p
-# >>> BLOK_RV_V3_END
+```
 
-# ------------------------------------------------------------
-# V4 - CEK: PLAN vs AKTUAL (Jul-Des 2025)
-# Field di Values: Jenis, Tanggal, Produk, Permintaan, CekPlan
-# ------------------------------------------------------------
-# >>> BLOK_RV_V4_START
+**Hasil (pratinjau `output/`):**
+
+![Visual 3 — Plan Bulan Depan (Jan 2026)](output/V3_planbulan.png)
+
+---
+
+### Visual 4 — Cek: Plan vs Aktual
+
+**Cek metode**: bila metode ini dijalankan 6 bulan lalu, seberapa dekat (plan vs aktual)? Bar aktual vs plan (Jul-Des 2025).
+
+**Field di Values:** `Jenis, Tanggal, Produk, Permintaan, CekPlan`
+
+```r
 suppressMessages({ library(ggplot2); library(dplyr); library(tidyr) })
 Tgl <- dataset$Tanggal
 Tanggal <- if (is.numeric(Tgl)) as.Date(unclass(Tgl), origin = "1970-01-01") else as.Date(as.character(Tgl))
@@ -606,18 +585,26 @@ if (nrow(D) == 0) {
                       name = NULL) +
     scale_y_continuous(labels = label_comma()) +
     labs(title = "Cek: Plan vs Aktual (Jul-Des 2025)",
-         subtitle = "Cara kita plan, seberapa hampir 6 bulan lalu? Metode sama, 6 bulan luar",
+         subtitle = "Cara kita membuat plan, seberapa dekat 6 bulan lalu? Metode sama, 6 bulan lebih awal",
          x = NULL, y = "Unit") +
     theme_minimal(base_size = 12)
 }
 p
-# >>> BLOK_RV_V4_END
+```
 
-# ------------------------------------------------------------
-# V5 - ANGKA BULAN (berapa x rata-rata)
-# Field di Values: Produk, BulanKe, AngkaBulan
-# ------------------------------------------------------------
-# >>> BLOK_RV_V5_START
+**Hasil (pratinjau `output/`):**
+
+![Visual 4 — Cek: Plan vs Aktual](output/V4_cek.png)
+
+---
+
+### Visual 5 — Angka Bulan
+
+**Angka Bulan**: Desember biasanya 1,4x rata-rata; Januari 0,7x - kenapa plan tanpa ini bisa salah saat puncak.
+
+**Field di Values:** `Produk, BulanKe, AngkaBulan`
+
+```r
 suppressMessages({ library(ggplot2); library(dplyr) })
 D <- dataset |> distinct(Produk, BulanKe, AngkaBulan)
 
@@ -643,13 +630,21 @@ if (nrow(D) == 0) {
     theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
 }
 p
-# >>> BLOK_RV_V5_END
+```
 
-# ------------------------------------------------------------
-# V6 - HEATMAP Tahun x Bulan (permintaan riwayat)
-# Field di Values: Jenis, Tanggal, Permintaan
-# ------------------------------------------------------------
-# >>> BLOK_RV_V6_START
+**Hasil (pratinjau `output/`):**
+
+![Visual 5 — Angka Bulan](output/V5_angkabulan.png)
+
+---
+
+### Visual 6 — Heatmap (Tahun x Bulan)
+
+Heatmap Tahun x Bulan: dalam 1 pandangan bahwa **Nov-Des** konsisten paling tinggi -> stok sebelum Q4.
+
+**Field di Values:** `Jenis, Tanggal, Permintaan`
+
+```r
 suppressMessages({ library(ggplot2); library(dplyr); library(scales) })
 Tgl <- dataset$Tanggal
 Tanggal <- if (is.numeric(Tgl)) as.Date(unclass(Tgl), origin = "1970-01-01") else as.Date(as.character(Tgl))
@@ -679,14 +674,21 @@ if (nrow(D) == 0) {
     theme_minimal(base_size = 12)
 }
 p
-# >>> BLOK_RV_V6_END
+```
 
-# ------------------------------------------------------------
-# V7 - KAPASITAS vs PUNCAK PLAN
-# Field di Values: Jenis, Produk, Tanggal, Skenario,
-#                  FaktorSkenario, Plan, KapasitasMesin
-# ------------------------------------------------------------
-# >>> BLOK_RV_V7_START
+**Hasil (pratinjau `output/`):**
+
+![Visual 6 — Heatmap (Tahun x Bulan)](output/V6_heatmap.png)
+
+---
+
+### Visual 7 — Kapasitas vs Puncak Plan
+
+Cek kapasitas: **bar di atas garis = 1 mesin tidak cukup**. Dengan slicer Skenario, diketahui kapan butuh mesin 2.
+
+**Field di Values:** `Jenis, Produk, Tanggal, Skenario, FaktorSkenario, Plan, KapasitasMesin`
+
+```r
 suppressMessages({ library(ggplot2); library(dplyr); library(scales) })
 D <- dataset
 
@@ -718,14 +720,21 @@ if (nrow(D) == 0 || nrow(D |> filter(Jenis == "Plan")) == 0) {
     theme_minimal(base_size = 12)
 }
 p
-# >>> BLOK_RV_V7_END
+```
 
-# ------------------------------------------------------------
-# V8 - TABEL WHAT-IF (skenario)
-# Field di Values: Jenis, Tanggal, Produk, Skenario,
-#                  FaktorSkenario, Plan, HargaSatuan, KapasitasMesin
-# ------------------------------------------------------------
-# >>> BLOK_RV_V8_START
+**Hasil (pratinjau `output/`):**
+
+![Visual 7 — Kapasitas vs Puncak Plan](output/V7_kapasitas.png)
+
+---
+
+### Visual 8 — Tabel What-if
+
+Tabel what-if: **Plan 2026 (unit), nilai penjualan (Rp) dan mesin dibutuhkan** per skenario (Pesimis/Normal/Optimis).
+
+**Field di Values:** `Jenis, Tanggal, Produk, Skenario, FaktorSkenario, Plan, HargaSatuan, KapasitasMesin`
+
+```r
 suppressMessages({ library(ggplot2); library(dplyr) })
 D <- dataset |> arrange(Tanggal, Produk)
 
@@ -786,68 +795,30 @@ if (nrow(D) == 0 || nrow(D |> filter(Jenis == "Plan")) == 0) {
           plot.subtitle = element_text(hjust = 0.5, color = "grey40", size = 9))
 }
 p
-# >>> BLOK_RV_V8_END
 ```
 
-> Kunci filter: blok membaca `dataset` (baris yang sudah terfilter slicer) → pakai `distinct()`/
-> `group_by()` sebelum summing (kerena baris skenario berulang) → gambar merespons slicer.
-> Guard `if (nrow(dataset) == 0)` → tidak error saat filter kosong.
+**Hasil (pratinjau `output/`):**
+
+![Visual 8 — Tabel What-if](output/V8_whatif.png)
+
+---
+
 
 
 ---
 
-## 10. Output Visual (Pratinjau)
+## 17. Kode: Validasi Lokal (`R/03_validasi.R`)
 
-Gambar di bawah = hasil dirender pi `R/03_validasi.R` (kode **persis** yang ditempel di R visual).
-In Power BI setiap gambar akan merespons slicer Produk / Skenario / Tahun / NamaBulan.
+Jalan: `Rscript R/03_validasi.R`
 
-### V1 — Ringkasan (KPI)
-
-![V1 — Ringkasan (KPI)](output/V1_kpi.png)
-
-### V2 — Tren riwayat & plan 2026
-
-![V2 — Tren riwayat & plan](output/V2_tren.png)
-
-### V3 — Plan bulan depan (Jan 2026) per produk
-
-![V3 — Plan bulan depan](output/V3_planbulan.png)
-
-### V4 — Cek: plan vs aktual (Jul–Des 2025)
-
-![V4 — Cek plan vs aktual](output/V4_cek.png)
-
-### V5 — Angka bulan (berapa × rata-rata)
-
-![V5 — Angka bulan](output/V5_angkabulan.png)
-
-### V6 — Heatmap tahun × bulan
-
-![V6 — Heatmap](output/V6_heatmap.png)
-
-### V7 — Kapasitas vs puncak plan
-
-![V7 — Kapasitas vs puncak](output/V7_kapasitas.png)
-
-### V8 — Tabel what-if (skenario)
-
-![V8 — Tabel what-if](output/V8_whatif.png)
-
-
----
-
-## 11. Kode: Validacja Lokal (`R/03_validasi.R`)
-
-Jalan dari root proyek: `Rscript R/03_validasi.R`
-
-- Simulasii gabungan Power Query (`permintaan` + `produk` → `dataset`),
-- dijalan **BLOK_PQ_01** (transformasi → `ramalan`),
-- dijalan **BLOK_RV_V1…V8** (8 gambar → `output/V*.png`),
-- stdout ringkasan angka key (plan per skenario, selisih, mesin).
+- Simulasi gabung Power Query (`permintaan` + `produk` -> `dataset`),
+- menjalankan **BLOK_PQ_01** (transformasi -> `ramalan`),
+- menjalankan **BLOK_RV_V1...V8** (8 gambar -> `output/V*.png`),
+- stdout ringkasan angka kunci.
 
 ```r
 # ============================================================
-# R/03_validasi.R  --  VALIDACIA end-to-end (lokal, tanpa Power BI)
+# R/03_validasi.R  --  VALIDASI end-to-end (lokal, tanpa Power BI)
 # ------------------------------------------------------------
 # Skrip ini menjalankan kode R yang SAMA PERSIS dengan blok yang
 # ditempel di Power BI:
@@ -866,7 +837,7 @@ extr <- function(path, tag) {
   txt <- readLines(path, warn = FALSE)
   a <- grep(sprintf("# >>> %s_START", tag), txt)
   b <- grep(sprintf("# >>> %s_END",   tag), txt)
-  if (!length(a) || !length(b)) stop("Blok ", tag, " tidak ditempuh di ", path)
+  if (!length(a) || !length(b)) stop("Blok ", tag, " tidak ditemukan di ", path)
   paste(txt[(a[1] + 1):(b[1] - 1)], collapse = "\n")
 }
 
@@ -880,7 +851,7 @@ jalan <- function(blok, env, tag) {
   })
 }
 
-# ---------- 1. simulasii gabungan Power Query (permintaan + produk) ----------
+# ---------- 1. simulasi gabungan Power Query (permintaan + produk) ----------
 suppressMessages({ library(dplyr); library(tidyr) })
 
 permintaan <- read.csv(file.path(base, "data", "permintaan.csv"))
@@ -901,7 +872,7 @@ suppressMessages({ library(ggplot2); library(scales) })
 dim <- list(V1 = c(9, 4.0), V2 = c(9, 4.6), V3 = c(8, 4.0),
             V4 = c(9, 4.0), V5 = c(8, 4.0), V6 = c(9, 3.2),
             V7 = c(8, 4.0), V8 = c(9, 4.0))
-naam <- c(V1 = "kpi", V2 = "tren", V3 = "planbulan", V4 = "cek",
+nama <- c(V1 = "kpi", V2 = "tren", V3 = "planbulan", V4 = "cek",
           V5 = "angkabulan", V6 = "heatmap", V7 = "kapasitas", V8 = "whatif")
 
 for (nm in names(dim)) {
@@ -909,14 +880,14 @@ for (nm in names(dim)) {
   ensv <- new.env()
   assign("dataset", ramalan, envir = ensv)
   p <- jalan(extr("R/visual_R_powerbi.R", tag), ensv, tag)
-  fname <- file.path(out, sprintf("V%s_%s.png", substring(nm, 2), naam[[nm]]))
+  fname <- file.path(out, sprintf("V%s_%s.png", substring(nm, 2), nama[[nm]]))
   ggsave(fname, p, width = dim[[nm]][1], height = dim[[nm]][2],
          dpi = 150, bg = "white")
   cat("Dirender:", fname, "\n")
 }
 
 # ---------- 4. Ringkasan angka (untuk dokumentasi) ----------
-cat("\n=== RINGKASAN VALIDACION ===\n")
+cat("\n=== RINGKASAN VALIDASI ===\n")
 cat("riwayat rows :", nrow(distinct(ramalan |> filter(Jenis == "Riwayat") |> select(Tanggal, Produk))), "\n")
 cat("plan rows    :", nrow(distinct(ramalan |> filter(Jenis == "Plan") |> select(Tanggal, Produk))), "\n")
 cat("total baris  :", nrow(ramalan), "(x3 skenario)\n")
@@ -954,177 +925,174 @@ print(pln |>
         transmute(Produk, Plan = round(Plan)) |>
         as.data.frame())
 
-cat("\nValidacion selesai. File diproduksi di output/.\n")
+cat("\nValidasi selesai. File diproduksi di output/.\n")
 ```
 
 
 ---
 
-## 12. Panduan Dashboard Power BI (±30–45 menit)
+## 18. Panduan Dashboard Power BI (±30-45 menit)
 
-### 12.1 Load Data & Gabung Query
+### 18.1 Load Data & Gabung
 
-1. **Get Data → Text/CSV** → `data/permintaan.csv` → query **`permintaan`**.
-2. **Get Data → Text/CSV** → `data/produk.csv` → query **`produk`**.
-3. **Transform Data** → dalam query `permintaan`: **Home → Merge Queries**
+1. **Get Data -> Text/CSV** -> `data/permintaan.csv` -> query `permintaan`.
+2. **Get Data -> Text/CSV** -> `data/produk.csv` -> query `produk`.
+3. **Transform Data** -> di query `permintaan`: **Home -> Merge Queries**
    (`permintaan` kiri, `produk` kanan, join by `Produk`, **Left Outer**).
-4. Expand kolom `produk` → pilih: `Kategori`, `HargaSatuan`, `KapasitasMesin`, `LeadTimeHari`.
-5. Rinomina query: **`ramalan_sumber`**.
+4. Expand kolom `produk` -> `Kategori, HargaSatuan, KapasitasMesin, LeadTimeHari`.
+5. Ganti nama query: `ramalan_sumber`.
 
-### 12.2 Trasformasi dengan R
+### 18.2 Transformasi dengan R
 
-Pada query `ramalan_sumber`: **Transform → Run R script** → tempel
-**blok bab 8** (`R/powerquery_01_ramalan.R`) → variabel luaran `output` → **OK** → **Privacy = Public**.
+Di query `ramalan_sumber`: **Transform -> Run R script** -> tempel **bab 8** ->
+variabel `output` -> OK -> **Privacy = Public**.
 
-Cek tipe kolom di Data view:
-
-| Kolom | Tipe |
-| --- | --- |
-| `Tanggal` | **Date** |
-| `Tahun`, `BulanKe` | **Whole number** |
-| `Permintaan`, `Plan`, `CekPlan`, `AngkaBulan`, `FaktorSkenario` | **Decimal** |
-| `HargaSatuan`, `KapasitasMesin` | **Whole number** |
-| `NamaBulan`, `Produk`, `Kategori`, `Jenis`, `Skenario` | **Text** |
-
-### 12.3 ⭐ Model Data & Konexion Tabel (semua terkoneksi)
-
-Star model sederhana con 3 tabel:
+### 18.3 Star Model & Koneksi Tabel (semua terkoneksi)
 
 ```text
                  ┌──────────────┐
    produk ──────>│    ramalan   │<────── skenario
- (dimensi 2)     │   (fakt 180) │     (dimensi 3)
+ (dimensi 2)     │  (fakta 180)  │     (dimensi 3)
                  └──────────────┘
 ```
 
-**Buat dimensi `skenario` (3 baris, dari fakt):**
+**Buat dimensi `skenario` (3 baris, dari fakta):**
 
-1. Power Query: **klik kanan query `ramalan` → Reference** → rinomina **`skenario`**.
-2. **Transform → Remove Other Columns** → pilih `Skenario` dan `FaktorSkenario`.
-3. **Home → Remove Rows → Remove Duplicates** → 3 baris (Pesimis/Normal/Optimis).
+1. Power Query: **klik kanan query `ramalan` -> Reference** -> ganti nama jadi `skenario`.
+2. **Transform -> Remove Other Columns** -> pilih `Skenario` dan `FaktorSkenario`.
+3. **Home -> Remove Rows -> Remove Duplicates** -> 3 baris (Pesimis/Normal/Optimis).
 
-**Pokvari data sumber mentah (optional):** klik kanan tabel `permintaan` di Fields pane →
-uncheck **"Include in report"** (agar model lebih bersih; `produk`, `ramalan`, `skenario` tetap dimuat).
+**Sembunyikan data sumber mentah (opsional):** klik kanan tabel `permintaan` -> uncheck **Include in report**.
 
-**Buat hubungan (Model view):**
+**Hubungan (Model view):**
 
-| Dalle | Verso | Kardinalitas | Cross filter |
-| --- | --- | --- | --- |
-| `produk[Produk]` | → `ramalan[Produk]` | 1 : many | one-side → many |
-| `skenario[Skenario]` | → `ramalan[Skenario]` | 1 : many | one-side → many |
+| Dari | Ke | Kardinalitas |
+| --- | --- | --- |
+| `produk[Produk]` | -> `ramalan[Produk]` | 1 : many |
+| `skenario[Skenario]` | -> `ramalan[Skenario]` | 1 : many |
 
-(Drag kolom di tab Model: `produk[Produk]` → `ramalan[Produk]`, dsb.)
+**Kenapa ini membuat semua R visual merasakan slicer:** slicer memfilter baris fakta melalui
+relasi, dan R visual menerima hanya baris terfilter sebagai `dataset`.
 
-**Kenapa ini garanti "slicer terkoneksi semua":** slicer `Produk` memakai dimensione `produk` →
-hubungan filter `ramalan` → **R visual menerima solo baris terfilter** → gambar ikut.
-Slicer `Skenario` (dim `skenario`), `Tahun`/`NamaBulan` (kolom fakt) — juga filter untuk semua visual.
+### 18.4 Slicers
 
-> Konsep: **tidak ada tabel patah** — dimensi dan fakt terkoneksi, jadi filter dari slicer
-> berbari sampai ke baris fakt yang diterima R visual (`dataset`).
-
-### 12.4 Slicer
-
-| Slicer | Field (tabel) | Modus |
+| Slicer | Field | Modus |
 | --- | --- | --- |
 | Produk | `produk[Produk]` | Dropdown |
-| Skenario | `skenario[Skenario]` | **Dropdown, single select** (what-if) |
+| Skenario | `skenario[Skenario]` | **Dropdown, single select** |
 | Tahun | `ramalan[Tahun]` | Dropdown multi |
 | NamaBulan | `ramalan[NamaBulan]` | Dropdown multi |
 
-### 12.5 Bangun 8 R Visual
+### 18.5 Bangun 8 R Visual
 
-Per visual: klik ikon **R visual** → Enable → tarik field ke **Values** (bab 9 tabel) →
-tempel blok dari bab 9 → **Run script**. Field numerik = **Do not summarize**.
+Per visual: klik ikon **R** -> Enable -> seret field ke **Values** (tabel bab 9) ->
+tempel kode -> **Run script**. Field numerik = **Do not summarize**.
 
-| # | R visual | BLOK (bab 9) |
-| --- | --- | --- |
-| V1 | Ringkasan (KPI) | `BLOK_RV_V1` |
-| V2 | Tren riwayat & plan | `BLOK_RV_V2` |
-| V3 | Plan bulan depan | `BLOK_RV_V3` |
-| V4 | Cek plan vs aktual | `BLOK_RV_V4` |
-| V5 | Angka bulan | `BLOK_RV_V5` |
-| V6 | Heatmap tahun×bulan | `BLOK_RV_V6` |
-| V7 | Kapasitas vs puncak | `BLOK_RV_V7` |
-| V8 | Tabel what-if | `BLOK_RV_V8` |
+Layout: slicers di atas; V1+V8 baris 1; V2 kiri (besar); V3+V5 kanan; V4+V7 baris di bawahnya; V6 kecil.
 
-Layout contoh: 4 slicer di atas; V1+V8 di bar pertama; V2 di kiri (besar); V3+V5 di kanan;
-V4+V7 di bar bawah; V6 di kanan kecil.
+### 18.6 Demo What-if (slicer Skenario)
 
-### 12.6 Demo What-if (slicer Skenario)
+1. **Normal**: V1 "Plan 2026 = 60.564 unit", "Mesin = 4"; V7 Teh Botol 7.641 > 7.000 (2 mesin),
+   Keripik 4.168 > 3.800 (2); V8 row Normal.
+2. **Optimis**: V1 plan 66.620; V7 Keripik 4.584 -> bar di atas garis.
+3. **Pesimis**: V1 plan 54.507; keduanya di bawah kapasitas -> 1 mesin per produk.
 
-1. Slicer `Skenario` = **Normal**: V1 "Plan 2026 = 61.176 unit" & "Mesin = 4";
-   V7 Produk A puncak 7.924 > 7.000 (2 mesin), Produk B 4.016 > 3.800 (2 mesin); V8 row Normal.
-2. Slicer = **Optimis**: V1 plan = 67.293; V7 puncak Produk B 4.418 → bar di atas garis.
-3. Slicer = **Pesimis**: V1 plan = 55.058; V7 Produk B 3.615 < 3.800 → 1 mesin.
+### 18.7 Angka pembanding
 
-### 12.7 Troubleshooting
+| Metrik | Nilai |
+| --- | --- |
+| Total riwayat 2024-2025 | 223.370 unit |
+| Plan 2026 Pesimis / Normal / Optimis | 54.507 / 60.564 / 66.620 unit |
+| Nilai penjualan 2026 (Rp) | 712,2 M / 791,4 M / 870,5 M |
+| Cek selisih (2025) | Teh Botol 5,6% · Keripik 6,8% |
+| Mesin puncak (Normal) | Teh Botol 2 · Keripik 2 |
+
+### 18.8 Troubleshooting
 
 | Simptom | Causa | Fix |
 | --- | --- | --- |
-| R visual tidak mengubah ke slicer | **Hubungan belum buat** / kolom slicer tidak di Values | Buat hubungan (bab 12.3); sertakan kolom slicer di Values |
-| Slicer mengubah 1 visual saja | Interaksi visual = None | Format > **Edit interactions** → semua = Filter |
-| Angka KPI dua kali | baris skenario berulang | blok harus `distinct()` sebelum summing (kode fresh dari file R) |
-| R visual error saat filter 0 baris | tidak ada data untuk filter | blok ber guard `nrow(dataset) == 0` → dirender pesan |
-| R script tidak jalan | Privacy ≠ Public / path R salah | semua sumber Public; cek Options > R scripting |
-| `Tanggal` jadi teks di R | tipe kolom bukan Date | set `Tanggal` = Date di tabel `ramalan` |
-| Refresh gagal di Service | R tidak paket di cloud | demo/refresh di **Desktop** |
-
-### 12.8 Checklist
-
-- [ ] Model: `produk` + `skenario` terkoneksi ke `ramalan` (bab 12.3)
-- [ ] `permintaan` dihide (Include in report off) — optional
-- [ ] 8 R visual dirender tanpa error
-- [ ] Slicer Produk / Skenario / Tahun / NamaBulan mengubah **semua** 8
-- [ ] What-if demo sesuai angka bab 6
+| R visual tidak merespons slicer | **relasi tidak dibangun** / kolom tidak di Values | bangun relasi (18.3); kolom slicer juga di Values |
+| Slicer hanya mengubah 1 visual | Interaksi = None | Format -> **Edit interactions** -> semua = Filter |
+| Angka KPI ganda | baris skenario berulang | blok `distinct()`/`group_by()` (kode dari R/*) |
+| R visual error saat filter kosong | tidak ada data | blok guard `nrow(dataset)==0` -> pesan |
+| R script tidak berjalan | Privacy != Public / R path salah | semua Public; cek Options > R scripting |
+| `Tanggal` sebagai teks di R | tipe kolom bukan Date | set Tanggal = Date |
+| Refresh gagal di Service | R tidak di cloud | demo/refresh di Desktop |
 
 
 ---
 
-## 13. Kenapa Filter Berjalan di Semua Visual
+## 19. Kenapa Filter Berjalan di Semua Visual
 
-1. **Slicer filter baris fakt.** Slicer `Produk` (dimensi `produk`) & `Skenario` (dimensi `skenario`)
-   terkoneksi ke `ramalan` dengan hubungan 1-many (bab 12.3). Slicer menyaring baris `ramalan`.
-2. **R visual hanya menerima baris terfilter.** Skrip ggplot2 membaca `dataset` (baris yang
-   pasas filter) → gambar ikut berubah. Skrip juga membangun `distinct()`/`group_by()` sendiri.
-3. **Tidak ada tabel patah** → tidak ada gambar yang "tidak ikut slicer".
-4. R visual juga *cross-filter* visual lain (behavias native Power BI).
+1. **Slicer memfilter baris fakta.** Slicer `Produk` (dimensi `produk`) & `Skenario` (dimensi `skenario`)
+   terkoneksi ke `ramalan` (hubungan 1-many, bab 18.3).
+2. **R visual menerima hanya baris yang terfilter.** Skrip ggplot2 membaca `dataset`
+   (baris yang lolos filter) -> gambar ikut berubah.
+3. **Tidak ada tabel lepas** -> tidak ada visual yang "tidak merasakan slicer".
+4. R visual juga *cross-filter* dengan visual lain (perilaku native).
 
-> Penting: R visual = gambar statis (PNG). Yang interaktif adalah **slicer**, bukan elemen dalam
-> gambar. Sertakan semua kolom yang dibutuhan di **Values** (bab 9).
+> Penting: R visual = **gambar statis (PNG)**. Yang interaktif adalah **slicer**.
+> Sertakan kolom slicer juga di **Values** (bab 9).
 
 ---
 
-## 14. Kesimpulan & Rekomendasi
+## 20. Glossary (daftar istilah)
+
+| Istilah | Arti (bahasa sehari-hari) |
+| --- | --- |
+| **Permintaan** | jumlah yang diminta/terjual (unit) |
+| **Riwayat** | bulan yang benar-benar terjual (2024-2025) |
+| **Plan** | perkiraan kita untuk 2026 (unit) |
+| **Level / Rata3** | rata-rata 3 bulan terakhir ("berapa sekarang ini?") |
+| **Angka Bulan** | angka bulan: "desember menjual 1,4x rata-rata" |
+| **CekPlan** | uji: plan 6 bulan lalu vs aktual |
+| **Jenis** | tipe baris: `Riwayat` atau `Plan` |
+| **Skenario / what-if** | "bagaimana jika": x0,90 (Pesimis), x1,00 (Normal), x1,10 (Optimis) |
+| **FaktorSkenario** | angka pengali skenario terhadap Plan |
+| **Slicer** | tombol filter di Power BI (dropdown/daftar) |
+| **R visual** | gambar yang digambar Power BI dengan R; merespons slicer |
+| **Power Query + R** | langkah "Run R script": semua perhitungan di R |
+| **Star-model** | tabel fakta (ramalan) + dimensi (produk, skenario) |
+| **Relasi (hubungan)** | penghubung 1-many sehingga slicer memfilter baris fakta |
+| **Values** | kotak di R visual tempat field diseret |
+| **Do not summarize** | mode agregasi: baris TIDAK dijumlahkan (skrip menghitungnya sendiri) |
+| **KapasitasMesin** | maksimum unit per bulan yang bisa dibuat 1 mesin |
+| **KPI** | jawaban terpenting dalam 1 pandangan (Visual 1) |
+| **Cek** | rata-rata % selisih plan vs aktual (pada kita: 5,6% / 6,8%) |
+
+---
+
+## 21. Kesimpulan & Rekomendasi
 
 | # | Temuan (bahasa sehari-hari) | Bukti | Rekomendasi |
 | --- | --- | --- | --- |
-| 1 | Produk A tumbuh +13% dengan puncak Desember | total 76.290 (2025) · angka bulan Des 1,4 | siapkan kapasitas Produk A sebelum Q4 |
-| 2 | Metode plan sederhana cukup rapih | selisih rata-rata 10,7% / 8,0% (Cek 2025) | update plan setiap bulan (rata 3 terakhir × angka bulan) |
-| 3 | Puncak plan pasar kapasitas 1 mesin | Produk A 7.924 > 7.000 (Normal) | tambah/tutaf mesin Produk A **atau** perataan puncak |
-| 4 | What-if teruji pilihan secara ulsuk | Optimis: Produk B 4.418 > 3.800 (2 mesin) | bila imbas promosi, tardi silakan mesin Produk B |
-| 5 | Skenario penjualan jelas di Rp | Normal Rp 796,5 M vs Optimis Rp 876,2 M | diskusi pihak bisnis pakai slicer Skenario |
+| 1 | Teh Botol tumbuh +7,1% dan memuncak di Desember | penjualan 74.284 (2025) · Angka Bulan Des 1,39 | bangun stok sebelum Q4 |
+| 2 | Metode sederhana cukup akurat | Cek selisih 5,6% / 6,8% | plan setiap bulan dengan: Rata3 x Angka Bulan |
+| 3 | Puncak plan tidak muat di 1 mesin | Teh Botol 7.641 > 7.000; Keripik 4.168 > 3.800 | tambah 1 mesin atau ratakan puncaknya |
+| 4 | What-if membuat pilihan terlihat | Optimis Rp 870,5 M · 2 mesin; Pesimis 1 mesin | gunakan slicer Skenario saat pengambilan keputusan |
 
-**Format insight (kondisi → bukti → tindakan):**
+**Format insight (kondisi -> bukti -> tindakan):**
 
-> **Kondisi:** permintaan tumbuh dengan puncak Desember sehingga 1 mesin Produk A tidak cukup
-> di setiap skenario (puncak plan ≥ 7.132).
-> **Bukti:** plan puncak Produk A = 7.924 (Normal); kapasitas 1 mesin = 7.000; selisih rata-rata plan 10,7%.
-> **Tindakan:** update plan bulanan dengan *rata 3 bulan terakhir × angka bulan*, tambah
-> 1 mesin Produk A, dan pakai slicer Skenario untuk simulasi promosi/Pesimis.
+> **Kondisi:** penjualan tumbuh dan memuncak di Desember, jadi 1 mesin untuk Teh Botol pada 2026
+> tidak cukup (puncak plan 7.641 > kapasitas 7.000).
+> **Bukti:** puncak plan Teh Botol = 7.641 (Normal); kapasitas 1 mesin = 7.000; Cek selisih 5,6%.
+> **Tindakan:** plan setiap bulan dengan *Rata3 x Angka Bulan*; gunakan slicer Skenario untuk
+> mengambil keputusan soal mesin/promosi.
 
 ---
 
-## 15. Catatan & Limitasi
+## 22. Catatan & Limitasi
 
 | Item | Catatan |
 | --- | --- |
-| **R visual = statis** | Gambar R tidak interaktif (tooltip/klik); yang interaktif = slicer & filter |
-| **1 blok R di Power Query = 1 tabel** | Transformasi utama menghasilkan tabel `ramalan`; dimensione `skenario` = query reference (distinct) |
-| **Lookahead CekPlan** | `CekPlan` 2025 memakai `AngkaBulan` dari data 2024 saja, jadi tanpa "monyeji" (no futuro) |
-| **Plan 2026** | Memakai level rata-rata Okt–Des 2025 × `AngkaBulan` (2024+2025) — update bulanan yang menghadapi level yang diubah |
-| **Power BI Service** | R tidak paket di cloud → demo/refresh yang bisa diandai di **Desktop** |
-| **Sumber ide** | `Brainstorming/pilihan/03-peramalan-permintaan` (versi lengkap con MA/EWMA/MAPE) — proyek ini dirapakkan sederhana |
+| R visual = statis | tidak ada tooltip/klik; yang interaktif = slicer & filter |
+| 1 R blok = 1 tabel | transformasi menghasilkan `ramalan`; dimensi `skenario` = reference query (distinct) |
+| Tanpa statistika | metode hanya rata-rata, kali, bagi |
+| Power BI Service | R tidak di cloud -> demo/refresh di Desktop |
+| Data disimulasikan | `R/00_buat_data.R` (set.seed) — ganti dengan data penjualan asli |
+| Sumber ide | `Brainstorming/pilihan/03-peramalan-permintaan` (versi lengkap MA/EWMA/MAPE) |
 
 ---
 
-*README lengkap — Peramalan Permintaan (End-to-End, Power BI + R). Bagian dari `Brainstorming/selected/`.*
+*README lengkap — CV Segar Jaya: Peramalan Permintaan (End-to-End, Power BI + R).
+Bagian dari `Brainstorming/selected/`.*

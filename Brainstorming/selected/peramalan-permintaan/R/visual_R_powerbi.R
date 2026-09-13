@@ -6,7 +6,7 @@
 #
 # METODE yang digunakan (sederhana):
 #   PLAN = rata-rata 3 bulan terakhir x "angka bulan"
-# CekPlan = plan yang dibuat 6 bulan luar (untuk visual Cek).
+# CekPlan = plan yang dibuat 6 bulan lalu (untuk visual Cek).
 #
 # Kunci filter: blok hanya membaca `dataset` (baris yang sudah
 # terfilter slicer) -> setiap gambar ikut slicer Produk / Skenario.
@@ -124,7 +124,7 @@ if (nrow(D) == 0) {
     scale_y_continuous(labels = label_comma()) +
     scale_x_date(date_labels = "%b %Y", date_breaks = "3 months") +
     labs(title = "Permintaan & Plan 2026",
-         subtitle = "Garis penuh = permintaan; garis putus = plan (uwekeh skenario what-if)",
+         subtitle = "Garis penuh = permintaan; garis putus = plan (warna sesuai skenario what-if)",
          x = NULL, y = "Unit") +
     theme_minimal(base_size = 12) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
@@ -200,7 +200,7 @@ if (nrow(D) == 0) {
                       name = NULL) +
     scale_y_continuous(labels = label_comma()) +
     labs(title = "Cek: Plan vs Aktual (Jul-Des 2025)",
-         subtitle = "Cara kita plan, seberapa hampir 6 bulan lalu? Metode sama, 6 bulan luar",
+         subtitle = "Cara kita membuat plan, seberapa dekat 6 bulan lalu? Metode sama, 6 bulan lebih awal",
          x = NULL, y = "Unit") +
     theme_minimal(base_size = 12)
 }
