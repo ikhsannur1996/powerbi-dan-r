@@ -63,7 +63,7 @@ Setelah menyelesaikan **Volume 2**, Anda diharapkan mampu:
 7. Mengukur **besar efek** (Cohen's d, eta squared, R²), bukan hanya p-value.
 8. Menulis **kesimpulan statistik** dengan bahasa yang benar dan tidak menyesatkan.
 
-> Volume 2 adalah **jembatan** dari "membuat grafik" menuju "mengambil keputusan berbasis data" — bekal penting untuk **Volume 3 (Case Study Industrial Engineering)** dan **Volume 4 (End-to-End Analytics)**.
+> Volume 2 adalah **jembatan** dari "membuat grafik" menuju "mengambil keputusan berbasis data" — bekal penting untuk **Volume 3 (Case Study Industrial Engineering)** dan **Volume 4 (End-to-End Analytics)**, keduanya kini tersimpan di folder `Archive/`.
 
 ---
 
@@ -1420,7 +1420,7 @@ power.t.test(delta = 0.5, sd = 2.0, sig.level = 0.05, power = 0.80, type = "pair
 | Volume 0 — Basic R | `../Volume 0 - Basic R/README.md` |
 | Modul statistik dasar | `../README_Basic_R.md` (Bab 9) |
 | Volume 1 — Basic Visualization ggplot | `../Volume 1 - Basic Visualization ggplot/README.md` |
-| Volume 3 — Case Study Industrial Engineering | `../Volume 3 - Case Study Industrial Engineering/README.md` |
+| Volume 3 — Case Study Industrial Engineering | `../Archive/Volume 3 - Case Study Industrial Engineering/README.md` |
 | OpenIntro Statistics (gratis) | <https://www.openintro.org/book/os/> |
 | R for Data Science (2e) | <https://r4ds.hadley.nz/> |
 | Dokumentasi `stats` (base R) | <https://stat.ethz.ch/R-manual/R-devel/library/stats/html/00Index.html> |

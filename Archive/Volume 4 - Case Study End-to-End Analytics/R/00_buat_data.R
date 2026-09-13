@@ -1,5 +1,5 @@
 set.seed(20260401)
-base <- "/Users/ikhsannur1996/Documents/Power BI dan R/Volume 4 - Case Study End-to-End Analytics/data"
+base <- "/Users/ikhsannur1996/Documents/Power BI dan R/Archive/Volume 4 - Case Study End-to-End Analytics/data"
 
 tgl <- seq(as.Date("2026-01-02"), as.Date("2026-06-30"), by = "day")
 tgl <- tgl[format(tgl, "%u") != "7"]  # libur tiap Minggu

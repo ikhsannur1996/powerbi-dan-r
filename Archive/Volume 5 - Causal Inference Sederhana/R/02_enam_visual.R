@@ -5,10 +5,10 @@
 # (Nama file historis "enam_visual": dulu 1 file 6 visual,
 #  kini dipecah 2 file agar tiap file cepat di-run.)
 # Jalan (dari root repo):
-#   Rscript "Volume 5 - Causal Inference Sederhana/R/02_enam_visual.R"
+#   Rscript "Archive/Volume 5 - Causal Inference Sederhana/R/02_enam_visual.R"
 # ============================================================
 suppressPackageStartupMessages({ library(dplyr); library(ggplot2) })
-ROOT <- "Volume 5 - Causal Inference Sederhana"
+ROOT <- "Archive/Volume 5 - Causal Inference Sederhana"
 OUT  <- file.path(ROOT, "output")
 if (!dir.exists(OUT)) dir.create(OUT, recursive = TRUE)
 

@@ -9,3 +9,7 @@
 
 # Catatan: dataset latihan (qc_*.csv), galeri chart (output/*.png, *.pdf),
 # dan seluruh hasil generate DIKOMMIT sesuai keputusan repo.
+
+# Artefak sementara di root (bukan hasil kerja)
+/Rplots.pdf
+/_v2.R

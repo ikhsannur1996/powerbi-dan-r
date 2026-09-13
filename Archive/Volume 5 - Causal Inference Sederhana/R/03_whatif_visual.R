@@ -1,10 +1,10 @@
 # ============================================================
 # 03_whatif_visual.R — V4 distribusi + V5/V6 what-if
 # Jalan (dari root repo):
-#   Rscript "Volume 5 - Causal Inference Sederhana/R/03_whatif_visual.R"
+#   Rscript "Archive/Volume 5 - Causal Inference Sederhana/R/03_whatif_visual.R"
 # ============================================================
 suppressPackageStartupMessages({ library(dplyr); library(ggplot2); library(tidyr) })
-ROOT <- "Volume 5 - Causal Inference Sederhana"
+ROOT <- "Archive/Volume 5 - Causal Inference Sederhana"
 OUT  <- file.path(ROOT, "output")
 if (!dir.exists(OUT)) dir.create(OUT, recursive = TRUE)
 

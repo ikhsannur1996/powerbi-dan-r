@@ -2,10 +2,10 @@
 # 01_did_sederhana.R — Difference-in-Differences (DiD) paling simpel
 # IDE: Korelasi != Kausal. Bandingkan PERUBAHAN, bukan level akhir.
 # Cara jalan (dari root repo):
-#   Rscript "Volume 5 - Causal Inference Sederhana/R/01_did_sederhana.R"
+#   Rscript "Archive/Volume 5 - Causal Inference Sederhana/R/01_did_sederhana.R"
 # ============================================================
 suppressPackageStartupMessages({ library(dplyr); library(ggplot2) })
-ROOT <- "Volume 5 - Causal Inference Sederhana"
+ROOT <- "Archive/Volume 5 - Causal Inference Sederhana"
 OUT  <- file.path(ROOT, "output")
 if (!dir.exists(OUT)) dir.create(OUT, recursive = TRUE)
 

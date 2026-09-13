@@ -8,7 +8,7 @@ Semua angka acuan di bawah adalah **hasil aktual** dari data (bukan perkiraan).
 ## 1. Persiapan Data
 
 1. Buka **Power BI Desktop** → **Get Data → Text/CSV** → pilih:
-   `Volume 4 - Case Study End-to-End Analytics/output/fakta_powerbi.csv`
+   `Archive/Volume 4 - Case Study End-to-End Analytics/output/fakta_powerbi.csv`
 2. Pastikan tipe kolom benar:
    - `Tanggal` → **Date**; `Bulan` → teks (`2026-01` dst.); `Hari` → teks nama hari.
    - `DefectRatePct`, `PencapaianPct` → **Decimal number**.

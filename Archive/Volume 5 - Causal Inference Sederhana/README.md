@@ -27,7 +27,7 @@ Jebakan yang sengaja ditanam: grup latih **memang mulai lebih buruk** (rata-rata
 4,00% vs 3,12%). Jadi perbandingan "sesudah saja" (2,32 vs 3,17, selisih −0,85)
 **melebih-lebihkan** efek pelatihan. Inilah *selection bias* — alasan kita butuh DiD.
 
-Buat ulang data kapan saja: `Rscript "Volume 5 - Causal Inference Sederhana/R/00_buat_data.R"`
+Buat ulang data kapan saja: `Rscript "Archive/Volume 5 - Causal Inference Sederhana/R/00_buat_data.R"`
 
 ## 3. Metode — Difference-in-Differences (1 rumus)
 
@@ -69,10 +69,10 @@ memakai presisi penuh dan memberi **−1,726** — koefisien interaksi
 Urutan yang disarankan — versi simpel dulu (1 grafik), lalu paket 6 visual:
 
 ```bash
-Rscript "Volume 5 - Causal Inference Sederhana/R/00_buat_data.R"    # opsional (buat ulang data)
-Rscript "Volume 5 - Causal Inference Sederhana/R/01_did_sederhana.R" # inti: DiD + output/did_tren.png
-Rscript "Volume 5 - Causal Inference Sederhana/R/02_enam_visual.R"   # V1-V3
-Rscript "Volume 5 - Causal Inference Sederhana/R/03_whatif_visual.R" # V4-V6 (what-if)
+Rscript "Archive/Volume 5 - Causal Inference Sederhana/R/00_buat_data.R"    # opsional (buat ulang data)
+Rscript "Archive/Volume 5 - Causal Inference Sederhana/R/01_did_sederhana.R" # inti: DiD + output/did_tren.png
+Rscript "Archive/Volume 5 - Causal Inference Sederhana/R/02_enam_visual.R"   # V1-V3
+Rscript "Archive/Volume 5 - Causal Inference Sederhana/R/03_whatif_visual.R" # V4-V6 (what-if)
 ```
 
 Luaran: `output/did_tren.png` (grafik utama) + `output/V1_*.png … V6_*.png`

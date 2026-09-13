@@ -2,7 +2,7 @@
 # 02_visualisasi_ggplot2.R
 # Volume 4 - 8 visual eksplorasi (cermin dashboard Power BI)
 # Cara jalan (dari root repo):
-#   Rscript "Volume 4 - Case Study End-to-End Analytics/R/02_visualisasi_ggplot2.R"
+#   Rscript "Archive/Volume 4 - Case Study End-to-End Analytics/R/02_visualisasi_ggplot2.R"
 # ============================================================
 
 suppressPackageStartupMessages({
@@ -12,7 +12,7 @@ suppressPackageStartupMessages({
   library(lubridate)
 })
 
-ROOT <- "Volume 4 - Case Study End-to-End Analytics"
+ROOT <- "Archive/Volume 4 - Case Study End-to-End Analytics"
 OUT  <- file.path(ROOT, "output")
 dir.create(OUT, showWarnings = FALSE)
 

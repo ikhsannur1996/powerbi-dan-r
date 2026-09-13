@@ -60,20 +60,20 @@ Volume 4 - Case Study End-to-End Analytics/
 
 ```r
 # 1. (Opsional) buat ulang data
-source("Volume 4 - Case Study End-to-End Analytics/R/00_buat_data.R")
+source("Archive/Volume 4 - Case Study End-to-End Analytics/R/00_buat_data.R")
 
 # 2. Analisis dplyr → 7 file agregat di output/
-source("Volume 4 - Case Study End-to-End Analytics/R/01_analisis_dplyr.R")
+source("Archive/Volume 4 - Case Study End-to-End Analytics/R/01_analisis_dplyr.R")
 
 # 3. Visual ggplot2 → 8 file PNG di output/
-source("Volume 4 - Case Study End-to-End Analytics/R/02_visualisasi_ggplot2.R")
+source("Archive/Volume 4 - Case Study End-to-End Analytics/R/02_visualisasi_ggplot2.R")
 ```
 
 Atau via terminal:
 
 ```bash
-Rscript "Volume 4 - Case Study End-to-End Analytics/R/01_analisis_dplyr.R"
-Rscript "Volume 4 - Case Study End-to-End Analytics/R/02_visualisasi_ggplot2.R"
+Rscript "Archive/Volume 4 - Case Study End-to-End Analytics/R/01_analisis_dplyr.R"
+Rscript "Archive/Volume 4 - Case Study End-to-End Analytics/R/02_visualisasi_ggplot2.R"
 ```
 
 ## 5. KPI (hasil aktual dari data)

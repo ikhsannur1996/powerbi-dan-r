@@ -425,7 +425,7 @@ ggplot(inspeksi, aes(sample = Defect)) +
 ![08. Q-Q plot](output/V08_qqplot.png)
 
 
-> Titik mengikuti garis diagonal = distribusi ~ normal (presuposisi banyak test statistik di Volume 3).
+> Titik mengikuti garis diagonal = distribusi ~ normal (presuposisi banyak test statistik di Volume 3, kini di `Archive/`).
 
 ### 6.9 Boxplot satu variabel — median & outlier (09)
 
@@ -664,7 +664,7 @@ ggplot(inspeksi, aes(x = Inspected, y = Defect)) +
 ![26. Smooth lm](output/V26_smooth_lm.png)
 
 
-> `geom_smooth(method = "lm")` = `lm(y ~ x)` + band kepercayaan (se = TRUE default). Cek residu di Volume 3.
+> `geom_smooth(method = "lm")` = `lm(y ~ x)` + band kepercayaan (se = TRUE default). Cek residu di Volume 3 (kini di `Archive/`).
 
 ### 8.3 Perbandingan lm vs loess (27)
 
@@ -1738,9 +1738,9 @@ Gunakan `visualisasi_sample.csv`. Coba tanpa lihat galeri dulu; buka kode nomor 
 | **Volume 0** | Basic R, dplyr, visualisasi dasar | — |
 | **Volume 1 (ini)** | Basic Visualization `ggplot2` — galeri 73 sample | Volume 0 |
 | **Volume 2 — Power BI** | Dashboard Power BI + **R visual** | Galeri `ggplot2` → skrip R visual |
-| **Volume 3 — Case Study Industrial Engineering** | SPC, capability, OEE, hipotesis | Tema + kustomisasi grafik |
-| **Volume 4 — Case Study End-to-End** | Analisis end-to-end dengan dplyr + ggplot2 + Power BI | Semua konsep volume ini |
-| **Volume 5 — Causal Inference** | DiD / what-if visual | Multi-line, facet, annotasi |
+| **Volume 3 — Case Study Industrial Engineering** (di `Archive/`) | SPC, capability, OEE, hipotesis | Tema + kustomisasi grafik |
+| **Volume 4 — Case Study End-to-End** (di `Archive/`) | Analisis end-to-end dengan dplyr + ggplot2 + Power BI | Semua konsep volume ini |
+| **Volume 5 — Causal Inference** (di `Archive/`) | DiD / what-if visual | Multi-line, facet, annotasi |
 
 > 💡 Di Power BI, R visual menerima data frame; kode ggplot2 di Bab ini jalan **verbatim** — hanya path data yang diubah menjadi data dari slicer.
 
@@ -1836,4 +1836,4 @@ inspeksi |> group_by(Bulan = floor_date(InspectionDate, "month"), Shift) |>
 > 💡 Galeri PNG (73 sample) sekarang tampil **inline** di Bab 6–15 — tiap blok kode langsung diikuti hasil visualnya. File PNG juga tersedia di folder `output/`.
 
 
-*README Volume 1 — Basic Visualization dengan ggplot2: 73 sample siap jalankan, teori layer, dan best practice. Fondasi visual untuk Volume 2 (Power BI + R visual) dan Volume 3–5 (case studies).*
+*README Volume 1 — Basic Visualization dengan ggplot2: 73 sample siap jalankan, teori layer, dan best practice. Fondasi visual untuk Volume 2 (Power BI + R visual) dan Volume 3–5 (case studies, kini di folder `Archive/`).*

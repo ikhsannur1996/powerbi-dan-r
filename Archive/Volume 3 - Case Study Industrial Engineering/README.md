@@ -42,10 +42,10 @@ Pertanyaan bisnis
 
 | File | Isi |
 | --- | --- |
-| `../quality_inspection.csv` | 48 baris inspeksi kualitas (Juli–Agustus 2026): tanggal, lini, produk, jenis defect, jumlah inspeksi, defect, cycle time |
-| `../qc_hasil_produksi.csv` | 458 baris transaksi produksi harian: 3 lini × 2 shift, dengan downtime, suhu, kelembaban, energi (ada NA & data invalid untuk latihan cleaning) |
-| `../qc_operator.csv` | Master 8 operator |
-| `../qc_produk.csv` | Master produk + harga satuan + target defect rate |
+| `../../quality_inspection.csv` | 48 baris inspeksi kualitas (Juli–Agustus 2026): tanggal, lini, produk, jenis defect, jumlah inspeksi, defect, cycle time |
+| `../../qc_hasil_produksi.csv` | 458 baris transaksi produksi harian: 3 lini × 2 shift, dengan downtime, suhu, kelembaban, energi (ada NA & data invalid untuk latihan cleaning) |
+| `../../qc_operator.csv` | Master 8 operator |
+| `../../qc_produk.csv` | Master produk + harga satuan + target defect rate |
 
 Jika file `qc_*.csv` belum ada, buat dengan:
 
@@ -78,8 +78,8 @@ Semua analisis dirancang berjalan dengan tidyverse murni; fungsi statistik (`t.t
 
 - Montgomery, D.C. — *Introduction to Statistical Quality Control* (SPC, capability, control chart)
 - Heizer & Render — *Operations Management* (OEE, productivity)
-- Cheatsheet: `../data-transformation.pdf`, `../data-visualization.pdf`
-- Materi pendukung: `../Volume 1 - R Studio/README.md` (statistik), `../Core Tidyverse/` (referensi fungsi)
+- Cheatsheet: `../../data-transformation.pdf`, `../../data-visualization.pdf`
+- Materi pendukung: `../../Volume 2 - Statistics and Inferential Statistics/README.md` (statistik), `../../Core Tidyverse/` (referensi fungsi)
 
 ---
 

@@ -5,7 +5,7 @@
 # Input : data/produksi.csv
 # Output: output/*.csv (tabel siap visual / siap Power BI)
 # Cara jalan (dari root repo "Power BI dan R"):
-#   Rscript "Volume 4 - Case Study End-to-End Analytics/R/01_analisis_dplyr.R"
+#   Rscript "Archive/Volume 4 - Case Study End-to-End Analytics/R/01_analisis_dplyr.R"
 # ============================================================
 
 suppressPackageStartupMessages({
@@ -14,7 +14,7 @@ suppressPackageStartupMessages({
   library(lubridate)
 })
 
-ROOT <- "Volume 4 - Case Study End-to-End Analytics"
+ROOT <- "Archive/Volume 4 - Case Study End-to-End Analytics"
 df <- read.csv(file.path(ROOT, "data/produksi.csv"), stringsAsFactors = FALSE) %>%
   mutate(Tanggal = as.Date(Tanggal))
 
