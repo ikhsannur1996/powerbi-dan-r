@@ -22,16 +22,14 @@ Volume N - ... (folder resmi)
 ```text
 selected/
 └── peramalan-permintaan/
-    ├── README.md                 # dokumentasi end-to-end (bahasa sederhana)
+    ├── README.md                 # ONE file end-to-end: dokumentasi + kode R inline + output visual + panduan Power BI
     ├── data/                     # permintaan.csv (48 baris) + produk.csv
     ├── R/
     │   ├── 00_buat_data.R            # generator data (reproducible)
     │   ├── powerquery_01_ramalan.R   # BLOK R -> Power Query (tabel ramalan)
     │   ├── visual_R_powerbi.R        # 8 BLOK R visual (ggplot2) -> filterable
     │   └── 03_validasi.R             # jalan semua blok lokal -> output/
-    ├── output/                   # ramalan.csv + V1..V8 PNG
-    └── powerbi/
-        └── panduan-dashboard.md  # langkah Power BI + model data (star model)
+    └── output/                   # ramalan.csv + V1..V8 PNG
 ```
 
 ## Quick Start
