@@ -18,8 +18,9 @@ Volume N - ... (folder resmi)
 ```
 
 > **Catatan repo:** `demand-forecasting-r-power-bi/` sekarang dikelola sebagai **repo git
-> terpisah** dan **tidak lagi dilacak oleh repo ini**. Folder tetap ada di disk lokal,
-> tetapi hasil `git clone` repo ini tidak menyertakannya.
+> terpisah** di <https://github.com/ikhsannur1996/demand-forecasting-r-power-bi> dan
+> **tidak lagi dilacak oleh repo ini**. Folder tetap ada di disk lokal, tetapi hasil
+> `git clone` repo ini tidak menyertakannya.
 
 ## Struktur
 
