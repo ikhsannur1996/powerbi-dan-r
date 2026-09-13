@@ -13,3 +13,7 @@
 # Artefak sementara di root (bukan hasil kerja)
 /Rplots.pdf
 /_v2.R
+
+# Project terpisah — folder ini punya repo git sendiri, dikelola mandiri
+/Brainstorming/selected/demand-forecasting-r-power-bi/
+
