@@ -311,19 +311,231 @@ ggplot(ringkas, aes(x = reorder(Line, DefectRate), y = DefectRate, fill = Line))
   labs(title = "Defect rate per lini", x = NULL) + theme_minimal()
 ```
 
-### 7.3 Rencana Dashboard (minimal)
+### 7.3 Rencana Dashboard (minimum **6 visual** + 4 KPI)
 
-| Zona | Isi | Sumber |
+**Syarat minimal: 6 visual.** Desain ini menyiapkan **8 visual** (V1–V8) agar setiap pilar OEE dan setiap level R (§4) punya "panggung" sendiri — **6 di antaranya adalah R visual `ggplot2`**. Layout 2 baris × 4 kolom:
+
+```text
+┌───────────────────────────────────────────────────────────────────────────┐
+│  [ KPI ] OEE 68.4% │ Availability 86.1% │ Performance 83.2% │ Quality 95.5%│  ← 4 kartu
+├───────────────────────────────────────────────────────────────────────────┤
+│  V1 Tren OEE harian             │  V2 Pareto downtime per mesin            │
+│  (line + moving average)        │  (bar + garis kumulatif)                 │
+├───────────────────────────────────────────────────────────────────────────┤
+│  V3 Kartu kontrol defect rate   │  V4 Process capability cycle time        │
+│  (line + UCL/LCL)               │  (histogram + LSL/USL)                   │
+├───────────────────────────────────────────────────────────────────────────┤
+│  V5 Heatmap Line × Shift        │  V6 Boxplot cycle time per lini          │
+│  (defect rate)                  │  (sebaran + titik mean)                  │
+├───────────────────────────────────────────────────────────────────────────┤
+│  V7 Dekomposisi OEE (A×P×Q)     │  V8 Scatter cycle time vs defect         │
+│  per lini (bar bertumpuk)       │  (titik + garis regresi)                 │
+├───────────────────────────────────────────────────────────────────────────┤
+│  ☑ Slicer: Tanggal │ Line │ Shift    │  💡 Insight box (kondisi→bukti→aksi) │
+└───────────────────────────────────────────────────────────────────────────┘
+```
+
+### 7.4 Delapan Visual — Spesifikasi
+
+| # | Judul | Jenis | Alat | Sumber data | Pertanyaan yang dijawab |
+| --- | --- | --- | --- | --- | --- |
+| **V1** | Tren OEE harian | line + moving average | native / `ggplot2` | agregat `Tanggal` | OEE membaik atau memburuk bulan ini? |
+| **V2** | Pareto downtime per mesin | bar + garis kumulatif | `ggplot2` | `sum(DowntimeMin)` per `MachineID` | mesin mana penyumbang 80% downtime? |
+| **V3** | Kartu kontrol defect rate | line + UCL/LCL | `ggplot2` | `X̄ ± 3σ` rolling | proses masih terkendali (in-control)? |
+| **V4** | Process capability cycle time | histogram + LSL/USL | `ggplot2` | `CycleTimeSec` vs spec | proses mampu memenuhi spesifikasi (Cp/Cpk)? |
+| **V5** | Heatmap Line × Shift | heatmap | `ggplot2` | defect rate matriks | kombinasi lini-shift mana paling merah? |
+| **V6** | Boxplot cycle time per lini | boxplot + mean | `ggplot2` | `CycleTimeSec` per `Line` | apakah sebaran antar lini berbeda? |
+| **V7** | Dekomposisi OEE (A×P×Q) | bar bertumpuk | `ggplot2` | komponen per `Line` | pilar mana yang menarik OEE turun? |
+| **V8** | Scatter cycle time vs defect | titik + `geom_smooth` | `ggplot2` | 2 variabel numerik | apakah cycle time memprediksi defect? |
+
+**Pembagian kerja yang disengaja:**
+
+| Kelompok | Visual | Fungsi di dashboard |
 | --- | --- | --- |
-| KPI card | OEE, Availability, Performance, Quality | hitung `dplyr` di Power Query |
-| Native visual | tren OEE harian, Pareto downtime | visual native |
-| R visual | kartu kontrol, boxplot cycle time per lini | `ggplot2` |
-| Slicer | Tanggal, Line, Shift | merespons semua visual |
-| Insight box | kondisi → bukti → tindakan | ditulis peserta |
+| **R visual** (`ggplot2`) | V2, V3, V4, V5, V7, V8 | visual yang **tidak ada** di visual native Power BI (Pareto kumulatif, kartu kontrol, capability, heatmap OEE) |
+| **Native Power BI** | V1, V6 + 4 KPI + slicer | visual yang butuh **interaksi & cross-filter** cepat |
+
+> **Aturan penting:** kolom yang dipakai R visual **harus dimasukkan ke bagian *Values*** agar R menerima data yang sudah terfilter slicer. Karena R visual non-interaktif, sediakan selalu **satu visual native pendamping** untuk kebutuhan drill-down.
+
+### 7.5 Skrip `ggplot2` Siap Tempel (R visual)
+
+Enam visual inti berikut **langsung bisa ditempel** ke panel R visual. Semua mengasumsikan `dataset` = data yang sudah difilter slicer.
+
+**V2 — Pareto downtime per mesin**
+
+```r
+library(ggplot2); library(dplyr); library(scales)
+
+pareto <- dataset |>
+  group_by(MachineID) |>
+  summarise(Downtime = sum(DowntimeMin), .groups = "drop") |>
+  arrange(desc(Downtime)) |>
+  mutate(
+    Mesin    = factor(MachineID, levels = MachineID),
+    Kumulatif = cumsum(Downtime) / sum(Downtime)
+  )
+
+ggplot(pareto, aes(x = Mesin)) +
+  geom_col(aes(y = Downtime), fill = "steelblue") +
+  geom_line(aes(y = Kumulatif * max(Downtime), group = 1),
+            color = "darkred", linewidth = 1) +
+  geom_point(aes(y = Kumulatif * max(Downtime)), color = "darkred") +
+  scale_y_continuous(
+    name = "Downtime (menit)",
+    sec.axis = sec_axis(~ . / max(pareto$Downtime), labels = percent_format())
+  ) +
+  labs(title = "Pareto downtime per mesin", x = NULL) +
+  theme_minimal(base_size = 11)
+```
+
+**V3 — Kartu kontrol defect rate (X̄ ± 3σ)**
+
+```r
+library(ggplot2); library(dplyr)
+
+kk <- dataset |>
+  group_by(Tanggal) |>
+  summarise(DefectRate = sum(Defect) / sum(Output), .groups = "drop") |>
+  mutate(CL  = mean(DefectRate),
+         UCL = CL + 3 * sd(DefectRate),
+         LCL = pmax(0, CL - 3 * sd(DefectRate)),
+         Sinyal = DefectRate > UCL | DefectRate < LCL)
+
+ggplot(kk, aes(x = Tanggal, y = DefectRate)) +
+  geom_line(color = "grey30") +
+  geom_point(aes(color = Sinyal), size = 2) +
+  geom_hline(yintercept = kk$CL[1],  linetype = "solid",  color = "darkgreen") +
+  geom_hline(yintercept = kk$UCL[1], linetype = "dashed", color = "darkred") +
+  geom_hline(yintercept = kk$LCL[1], linetype = "dashed", color = "darkred") +
+  scale_y_continuous(labels = percent_format(accuracy = 0.1)) +
+  scale_color_manual(values = c(`FALSE` = "grey40", `TRUE` = "darkred")) +
+  labs(title = "Kartu kontrol defect rate (X-bar)", x = NULL) +
+  theme_minimal(base_size = 11)
+```
+
+**V4 — Process capability cycle time**
+
+```r
+library(ggplot2); library(dplyr); library(scales)
+
+LSL <- 38; USL <- 52                      # batas spesifikasi (contoh)
+ct  <- dataset$CycleTimeSec
+Cp  <- (USL - LSL) / (6 * sd(ct))
+Cpk <- min((USL - mean(ct)), (mean(ct) - LSL)) / (3 * sd(ct))
+
+ggplot(dataset, aes(x = CycleTimeSec)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 30,
+                 fill = "steelblue", color = "white") +
+  stat_function(fun = dnorm, args = list(mean = mean(ct), sd = sd(ct)),
+                color = "black", linewidth = 0.8) +
+  geom_vline(xintercept = c(LSL, USL), linetype = "dashed", color = "darkred") +
+  annotate("text", x = USL, y = Inf, label = paste0("Cpk = ", round(Cpk, 2)),
+           vjust = 2, hjust = 1.1, color = "darkred") +
+  labs(title = "Process capability cycle time", x = "Cycle time (detik)", y = NULL) +
+  theme_minimal(base_size = 11)
+```
+
+**V5 — Heatmap Line × Shift**
+
+```r
+library(ggplot2); library(dplyr); library(scales)
+
+hm <- dataset |>
+  group_by(Line, Shift) |>
+  summarise(DefectRate = sum(Defect) / sum(Output), .groups = "drop")
+
+ggplot(hm, aes(x = Shift, y = Line, fill = DefectRate)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = percent(DefectRate, accuracy = 0.1)), size = 3) +
+  scale_fill_gradient(low = "#FFF5F0", high = "#C44E52") +
+  labs(title = "Heatmap defect rate: Line x Shift", x = NULL, y = NULL, fill = NULL) +
+  theme_minimal(base_size = 11)
+```
+
+**V6 — Boxplot cycle time per lini**
+
+```r
+library(ggplot2); library(dplyr)
+
+ggplot(dataset, aes(x = Line, y = CycleTimeSec, fill = Line)) +
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) +
+  geom_jitter(width = 0.12, alpha = 0.25, size = 1) +
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white") +
+  labs(title = "Sebaran cycle time per lini", x = "Lini", y = "Cycle time (detik)") +
+  theme_minimal(base_size = 11)
+```
+
+**V7 — Dekomposisi OEE (A x P x Q) per lini**
+
+```r
+library(ggplot2); library(dplyr); library(tidyr); library(scales)
+
+oee_long <- dataset |>
+  group_by(Line) |>
+  summarise(
+    Availability = sum(RunTime) / sum(PlannedTime),
+    Performance  = (sum(Output) * mean(IdealCycleSec) / 60) / sum(RunTime),
+    Quality      = 1 - sum(Defect) / sum(Output),
+    .groups = "drop"
+  ) |>
+  pivot_longer(-Line, names_to = "Pilar", values_to = "Nilai")
+
+ggplot(oee_long, aes(x = Line, y = Nilai, fill = Pilar)) +
+  geom_col(position = "dodge", width = 0.7) +
+  geom_hline(yintercept = 0.85, linetype = "dashed", color = "grey40") +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
+  labs(title = "Dekomposisi OEE per lini (target 85%)",
+       x = "Lini", y = NULL, fill = "Pilar") +
+  theme_minimal(base_size = 11)
+```
+
+**V8 — Scatter cycle time vs defect + regresi**
+
+```r
+library(ggplot2); library(dplyr); library(scales)
+
+model <- lm(DefectRate ~ CycleTimeSec, data = dataset)
+r2 <- summary(model)$r.squared
+
+ggplot(dataset, aes(x = CycleTimeSec, y = DefectRate)) +
+  geom_point(alpha = 0.4, color = "steelblue") +
+  geom_smooth(method = "lm", formula = y ~ x, color = "darkred") +
+  scale_y_continuous(labels = percent_format(accuracy = 1)) +
+  labs(title = "Cycle time vs defect rate",
+       subtitle = paste0("R-squared = ", round(r2, 3)),
+       x = "Cycle time (detik)", y = "Defect rate") +
+  theme_minimal(base_size = 11)
+```
+
+**V1 — Tren OEE harian** (native, tetapi versi `ggplot2` bila ingin R visual):
+
+```r
+library(ggplot2); library(dplyr); library(scales)
+
+tren <- dataset |>
+  group_by(Tanggal) |>
+  summarise(OEE = (sum(RunTime)/sum(PlannedTime)) *
+                  ((sum(Output)*mean(IdealCycleSec)/60)/sum(RunTime)) *
+                  (1 - sum(Defect)/sum(Output)), .groups = "drop") |>
+  mutate(MA7 = zoo::rollmean(OEE, k = 7, fill = NA, align = "right"))
+
+ggplot(tren, aes(x = Tanggal)) +
+  geom_line(aes(y = OEE), color = "grey60") +
+  geom_line(aes(y = MA7), color = "steelblue", linewidth = 1.2) +
+  geom_hline(yintercept = 0.85, linetype = "dashed", color = "darkred") +
+  scale_y_continuous(labels = percent_format(accuracy = 1)) +
+  labs(title = "Tren OEE harian + rata-rata bergulir 7 hari",
+       x = NULL, y = "OEE") +
+  theme_minimal(base_size = 11)
+```
+
+> **Ringkasan pemenuhan target:** **8 visual** (V1–V8) + **4 KPI card** + slicer + insight box. Enam di antaranya (V2, V3, V4, V5, V7, V8) adalah **R visual `ggplot2`**, melampaui syarat minimal 6 visual.
+>
+> **Catatan:** V1 memakai `zoo::rollmean`; bila paket `zoo` tidak terpasang, ganti dengan `stats::filter(OEE, rep(1/7, 7), sides = 1)` atau hitung manual dengan `dplyr` (rolling window).
 
 ---
 
-## 8. Struktur Folder Usulan (bila dipromosikan jadi Volume resmi)
+## 8. Struktur Folder yang Diusulkan
 
 ```text
 Volume 6 - R End-to-End Teknik Industri/     # nama usulan
