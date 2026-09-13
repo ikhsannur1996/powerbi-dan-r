@@ -1,0 +1,7 @@
+"MachineID","JenisMesin","TahunInstalasi","LineDefault"
+"M-01","CNC",2018,"Line-A"
+"M-02","Press",2015,"Line-A"
+"M-03","CNC",2020,"Line-B"
+"M-04","Press",2016,"Line-B"
+"M-05","Milling",2021,"Line-C"
+"M-06","Milling",2019,"Line-C"

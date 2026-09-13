@@ -1,0 +1,7 @@
+"Mesin","Line","Tipe","UmurTahun","Kritikalitas","JamOperasiHarian"
+"M-01","Line-A","CNC",3.5,"Tinggi",16
+"M-02","Line-A","CNC",11,"Tinggi",16
+"M-03","Line-B","Press",4,"Sedang",16
+"M-04","Line-B","Press",10.5,"Tinggi",16
+"M-05","Line-C","Milling",6,"Sedang",8
+"M-06","Line-C","Milling",2.5,"Rendah",8
